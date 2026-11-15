@@ -1,19 +1,24 @@
-# Feature extraction
+# Feature representation and extraction — updated 2026-11-16
 
-The active master's Chapter 3 §3.2.1 defines nonnegative integer occurrence counts for documents and DNA. Count matrices are sparse, with consistent column order across fit/search/test partitions.
+The current thesis Chapter 3 requires **nonnegative integer occurrence-count features**. Differentiate **reading preserved count matrices** (verified here) from **re-extracting features from raw texts/FASTA** (not reproduced for these datasets).
 
 ## DNA
 
-Use overlapping 8-mers with stride one. `AAAAAAAAA` contains two occurrences of `AAAAAAAA`, so its count is **2**, not 1. An ambiguous nucleotide breaks a window: `AAAAAAAANAAAAAAAA` yields two valid `AAAAAAAA` windows and no window crossing `N`. The existing extractor maps RNA `U` to `T`; this is an explicit representation convention, not a verified historical preprocessing choice. Reverse complements are not merged.
+The reference method uses **overlapping DNA 8-mers, stride 1**, recording each occurrence (e.g. `AAAAAAAAA` has two copies of `AAAAAAAA`). A valid DNA 8-mer lies in a 65,536-dimensional possible feature universe. The new Python representation applies documented conventions for ambiguous bases and `U`→`T`, without reverse-complement merging; these conventions have not all been established as identical to the historical program.
 
-Preserve source identifiers and labels. The archive currently supplies precomputed counts; without raw sequences, rerunning 8-mer extraction, checking sequence ambiguity/length, and validating Family/Genus labels cannot be claimed.
+The **complete precomputed** Bacteria and Fungi matrices have respectively **64,934** and **61,563** observed feature columns from the verified local audit; these are not fold-specific dimensions. The archived files do not contain original sequences, accession identifiers or full taxonomic lineages. **Family/Genus classification targets are not verified.**
 
 ## Documents
 
-The senior's description supplied by the user is punctuation/space tokenization retaining hyphenated words, lowercasing, stopword removal, and Porter stemming. A configurable implementation and source verification are being completed. For `Real-time systems, systems!`, hyphen-preserving lowercasing yields `real-time:1`, `systems:2`; with Porter stemming, `systems` becomes `system`.
+蔡幸辰 (2019) §3.1 describes English space/punctuation tokenization (hyphenated forms kept), lowercase normalization, stopword removal and Porter stemming. Current `src/afs_rgmnb/features/document.py` implements configurable variants, but the historical exact tokenizer, complete stoplist and stemming implementation cannot be validated from the saved counts.
 
-An existing term-count matrix is read directly; it is not tokenized again. Raw-text availability, document-header handling, encoding, stoplist and stemmer version must be documented. No TF-IDF, binary conversion or length normalization is applied to the primary representation.
+The archived 20Newsgroup count source has **83,635 possible source IDs**, of which **83,415** appear in the full sparse matrix. Do not run the tokenizer on this already-processed matrix; treat its values as occurrence counts rather than TF-IDF.
 
-## Leakage and sampling
+## Data separation and scope
 
-Learn vocabulary on D_fit and apply it unchanged to D_search and D_test. Full-dataset feature inventories are descriptive only. Preserve multiclass distributions by default for the new full-data workflow; any controlled balanced subset must be explicitly selected and labelled.
+- Preserve the original multiclass labels; do not silently undersample, oversample or merge into minority-versus-rest labels.
+- Fit any new vocabulary and supervised feature scoring on `Dfit` only. Full-matrix feature coverage is descriptive and should not be substituted for a training-fold vocabulary.
+- A revised rare-class policy, biological rank validation and raw-sequence/text comparisons are prerequisites for future benchmark claims.
+- **No PSO, JMH, ensemble or final classification performance is claimed by this audit.**
+
+See [dataset_status.md](dataset_status.md) and [validation_results.md](validation_results.md).

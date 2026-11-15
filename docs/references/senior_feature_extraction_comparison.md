@@ -126,8 +126,8 @@ and Fungi retain hundreds of classes of size 2; a split containing every class
 in `Dfit`, `Dsearch` and `Dtest` is impossible for those classes. The validation
 does not silently remove/merge classes or equalize the natural distribution.
 A reviewed rare-class/grouping policy and raw biological inputs are required
-before thesis performance experiments. Detailed measurements appear in
-[feature_extraction_validation.md](../experiments/feature_extraction_validation.md).
+before thesis performance experiments. The 2026-11-16 local Python audit verified the three original precomputed count sources: **18,828/6,386/7,730 samples**, **20/741/926 classes**, and **83,415/64,934/61,563 observed full-matrix columns** for 20News/Bacteria/Fungi. The measured values and scientific limitations appear in
+[validation_results.md](../../reports/2026-11-16/validation_results.md).
 
 The historical 20News class-19 folder/title says 755, while the actual full
 multiclass source contains **775**. The loader preserves and reports the file

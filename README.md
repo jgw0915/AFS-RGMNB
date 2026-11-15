@@ -2,7 +2,7 @@
 
 Reproducible, **count-based** preprocessing for high-dimensional **DNA sequence** and **document** classification. This is the feature extraction layer for the NCKU master thesis (randomly-generated ensemble of Multinomial Naive Bayes). It does **not** implement the thesis's JMH feature scoring, random subspace search, random MNB model generation, or PSO yet.
 
-**Research integrity:** Source archives and datasets from senior researchers are **not** bundled or uploaded to this repository. The 107 蔡幸辰 archive provided in Google Drive is 1,170,781,101 bytes and exceeds the connected download service's 256 MiB per-file limit. Therefore **its three real datasets were not inspected or tested in this release**. The validated real-data examples in `docs/VALIDATION.md` use earlier, separately accessible 陳泓宇 Bacteria/Fungi FASTA files. See `docs/SENIOR_METHODS.md` for what has been verified vs inferred.
+**Research integrity and current status (2026-11-16):** Senior archive and datasets are **not bundled in this public repo**. The extracted archive was inspected locally, and its **precomputed multiclass count matrices** for 20Newsgroup, Bacteria, and Fungi were successfully audited (18,828/6,386/7,730 samples; **83,415/64,934/61,563 observed full-matrix feature columns**). This does **not** mean raw-document or DNA feature re-extraction is completed. Taxonomic ranks of the gene class labels remain unverified. See [`reports/2026-11-16/`](reports/2026-11-16/) for up-to-date results; `docs/VALIDATION.md` is an earlier dated baseline.
 
 ## Install (lab server, Python 3.10)
 
