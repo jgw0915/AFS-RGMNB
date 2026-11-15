@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-11-16",
+  "thesis_relative_path": "../Master-Thesis",
+  "thesis_git_revision": "669245c9be4073e682ae76d6b0bdf80cd724d89b",
+  "entry_point": "main.tex",
+  "files": [
+    {
+      "path": "main.tex",
+      "sha256": "dc70ebc6efbe4251d821a059d8e95db1c815e0332d227b1ba72d28147a5b60d5",
+      "review_modules": [
+        "all methodology modules; active inclusion graph"
+      ]
+    },
+    {
+      "path": "Chapter/First Chapter.tex",
+      "sha256": "214914cd7f824a1828b7cb81a47001497f54225e5e5cbd00fa18050e3af8ac40",
+      "review_modules": [
+        "docs/methodology; experiment objectives"
+      ]
+    },
+    {
+      "path": "Chapter/Second Chapter.tex",
+      "sha256": "862d8c8a006777a6bf8ac6fb6f7e1d07ce6837d4a02425f83f005b89549c637c",
+      "review_modules": [
+        "experiments/baselines.py",
+        "docs/references"
+      ]
+    },
+    {
+      "path": "Chapter/Third Chapter.tex",
+      "sha256": "6ca2a045e42d0dd5ce8c0659d170240fbe5522e14a835fe69e24e42aee7db3f8",
+      "review_modules": [
+        "methods/*",
+        "data/splitting.py",
+        "features/*",
+        "experiments/*"
+      ]
+    },
+    {
+      "path": "Chapter/chapter3-notation-table.tex",
+      "sha256": "84911e904cb79df5831bfe5e21320be626e04bbf7a75c3946c975f10d6ad7afa",
+      "review_modules": [
+        "methods/*; symbol and serialization contracts"
+      ]
+    },
+    {
+      "path": "figures/chapter3-method.drawio",
+      "sha256": "35d632470c07365b07b699a49c7f38454418773c5ea8f83797414a0e454759b3",
+      "review_modules": [
+        "methods/ensemble.py",
+        "experiments/runner.py"
+      ]
+    },
+    {
+      "path": "figures/chapter3-method.pdf",
+      "sha256": "c0f8bdcb0010b5fb0a381360db47cb20001ab794345e99703ecce6abfbd16451",
+      "review_modules": [
+        "methods/ensemble.py",
+        "experiments/runner.py"
+      ]
+    },
+    {
+      "path": "style/chapter2_references.bib",
+      "sha256": "69ba6195bb6427ea604a9fb3b56ae968adc84d619bbe92fe8fb04cebfab8a76c",
+      "review_modules": [
+        "docs/methodology; citation provenance"
+      ]
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "b1451fc3c60aae99b20b5d9c80b4484e1e8924c40cd77d31e8929e429dd6207c",
+      "review_modules": [
+        "reference-reading instructions"
+      ]
+    },
+    {
+      "path": "notes/research-context.md",
+      "sha256": "af263d8d87fea85e8ca3211e12eb797200990de42a4b11a263d52c167fc3da77",
+      "review_modules": [
+        "docs/methodology/open_questions.md; historical clarification only"
+      ]
+    },
+    {
+      "path": "notes/chapter3-notation.tex",
+      "sha256": "02573204db585ee3691a3370896175e661353a0329cb891f8b23146e870d04e7",
+      "review_modules": [
+        "docs/methodology/open_questions.md; not active methodology"
+      ]
+    },
+    {
+      "path": "notes/baseline-screening-current.md",
+      "sha256": "10318a3f56b3f3f311c3787a399680114a168c8d7694540fe6f9d24694ca7ca4",
+      "review_modules": [
+        "experiments/baselines.py; supporting note only"
+      ]
+    }
+  ]
+}

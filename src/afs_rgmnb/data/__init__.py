@@ -1,0 +1,1 @@
+"""AFS-RGMNB data components."""

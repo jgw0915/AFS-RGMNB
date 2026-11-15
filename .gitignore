@@ -1,4 +1,9 @@
 # Do not commit research source data, private laboratory archives, or generated features.
+/107-林幸辰/
+/artifacts/
+*.egg-info/
+/build/
+/dist/
 /raw/
 /data/
 /datasets/
