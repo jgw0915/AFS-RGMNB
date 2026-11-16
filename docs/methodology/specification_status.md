@@ -45,12 +45,12 @@ Scientific omissions and explicit engineering choices are in
 
 | Active section / stable labels | Affected Python components | Status at this audit |
 |---|---|---|
-| 3.2, `sec:method-extraction`, `sec:method-data-split` | `data/{readers,preprocessing,taxonomy,splitting}.py`, `features/{dna_kmer,document,vectorization}.py` | Legacy count extractor exists and baseline 11 tests passed; modular refactor/real-dataset evidence must be reviewed separately |
-| 3.3.1, `eq:method-md-estimates` through `eq:method-sampling-weights` | `methods/feature_scoring.py`, `methods/adaptive_sampling.py` | Equations mapped; implementation planned; zero-score active-body gap recorded |
-| 3.3.2–3.3.4, `eq:method-sequential-sampling` through `eq:method-subspace-choice` | `methods/random_subspace.py`, `methods/mnb.py` | Fixed-m sampling and subspace-normalized MNB mapped; implementation planned |
+| 3.2, `sec:method-extraction`, `sec:method-data-split` | `data/{readers,preprocessing,taxonomy,splitting}.py`, `features/{dna_kmer,document,vectorization}.py` | Modular count readers/extractors and split preflight verified; three real-source exports and report complete; see dated validation |
+| 3.3.1, `eq:method-md-estimates` through `eq:method-sampling-weights` | `methods/feature_scoring.py`, `methods/adaptive_sampling.py` | JMH and initial probabilities implemented with numerical tests; zero-score inputs fail explicitly (Q01) |
+| 3.3.2–3.3.4, `eq:method-sequential-sampling` through `eq:method-subspace-choice` | `methods/random_subspace.py`, `methods/mnb.py` | Sequential fixed-m sampler implemented; subspace MNB and candidate selection remain planned |
 | 3.4.1, `eq:method-mnb-constraints`, `eq:method-mnb-initialization` | `methods/random_generation.py` | Independent normalized uniforms mapped; implementation planned |
 | 3.4.2, `eq:method-pso-particle-position` through `eq:method-vote` | `methods/pso.py`, `methods/ensemble.py` | Exact representation, fitness, scalar-rho update and fixed-G hard vote mapped; implementation planned |
-| 3.5, `eq:method-inclusion` through `eq:method-weight-change` | `methods/adaptive_sampling.py`, `methods/ensemble.py` | Threshold update and consecutive stability mapped; implementation planned |
+| 3.5, `eq:method-inclusion` through `eq:method-weight-change` | `methods/adaptive_sampling.py`, `methods/ensemble.py` | Inclusion/threshold/normalization and L1 change implemented; consecutive stopping/full loop remain planned |
 | 3.6, `sec:method-evaluation` | `experiments/{baselines,metrics,runner,reporting}.py` | Infrastructure planned; final experiment settings absent |
 
 Planned module paths are interface targets and do not claim files or completed
@@ -71,9 +71,9 @@ improved classification results, or finalized Chapter 4 experiments.
    dated notes; body prose is less explicit. No generic PSO clipping substitution
    is justified.
 5. No final split ratio, numeric search settings, baseline tuning grid, similarity
-   grouping protocol or statistical comparison design is specified. Additional
-   imbalance diagnostics requested in this session supplement accuracy; they do
-   not change the specified search fitness.
+   grouping protocol or statistical comparison design is specified. The latest user scope is multiclass
+   classification with natural class distributions; no imbalance-specific learning
+   or intervention is authorized. Additional metrics do not change search fitness.
 6. The flowchart does not draw the search-to-PSO connection or limit-exit branch
    separately; body text requires both. The source contains a harmless reference
    typo: initial PSO positions refer to the constraint equation (3.10), while the
@@ -104,3 +104,7 @@ Validation in this session: the checker returned `sources_match: true` for all
 12 recorded files and an empty thesis Git status. Synthetic unchanged, changed,
 missing-file and path-traversal cases also passed. The rendered diagram preview
 is under ignored `inspection_methodology/`; no reference PDF or preview is staged.
+
+Implementation continuation: 41 local tests pass (32 data/preprocessing tests and
+9 numerical Chapter 3 sampling tests). No PSO, ensemble or final accuracy experiment
+is complete. Source fingerprints remain unchanged; the thesis remains read-only.

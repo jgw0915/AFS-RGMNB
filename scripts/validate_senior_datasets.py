@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from datetime import datetime, timezone
 import ctypes
 import hashlib
 import json
@@ -123,12 +124,16 @@ def audit_one(root: Path, key: str, output: Path, seed: int, export: bool) -> di
     report["numpy"] = np.__version__
     report["scipy"] = __import__("scipy").__version__
     report["scikit_learn"] = __import__("sklearn").__version__
-    report["inspection_date"] = "2026-11-16"
-    git = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False)
-    report["source_code_commit"] = git.stdout.strip() if git.returncode == 0 else None
-    git_status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=False)
-    report["source_code_worktree_dirty"] = bool(git_status.stdout.strip())
+    inspected_at = datetime.now(timezone.utc)
+    report["inspection_date"] = inspected_at.date().isoformat()
+    report["inspection_timestamp_utc"] = inspected_at.isoformat()
     repo = Path(__file__).resolve().parents[1]
+    git = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                         capture_output=True, text=True, check=False)
+    report["source_code_commit"] = git.stdout.strip() if git.returncode == 0 else None
+    git_status = subprocess.run(["git", "status", "--porcelain"], cwd=repo,
+                                capture_output=True, text=True, check=False)
+    report["source_code_worktree_dirty"] = bool(git_status.stdout.strip())
     report["validation_code_sha256"] = {
         relative: hashlib.sha256((repo / relative).read_bytes()).hexdigest()
         for relative in ["scripts/validate_senior_datasets.py", "src/afs_rgmnb/data/senior_archive.py"]}

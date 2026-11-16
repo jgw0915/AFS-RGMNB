@@ -11,12 +11,14 @@
 - [x] Configurable hyphen-preserving document tokenizer, stoplist and Porter variants.
 - [x] Explicit all-record sampling, class filters, duplicate policies and split preflight.
 - [x] Baseline 11 tests preserved; expanded suite covers counts, decoding and exclusions.
+- [x] Verified Chapter 3 JMH, initial weights, inclusion updates, L1 change and
+  sequential fixed-m sampling; 9 numerical tests (41 total local tests).
 
 ## Current session
 
 - [x] Independently export/reload all three matrices; full distributions,
   runtime/memory, source fingerprints and two-page professor PDF visually verified.
-- [ ] Review and checkpoint the changes locally; never push without user approval.
+- [x] Review and checkpoint report/data changes locally; no push performed.
 
 ## Scientific or source blocks
 
@@ -32,8 +34,9 @@
 
 ## Subsequent implementation
 
-1. Implement verified JMH, initial probabilities and adaptive updates with numerical tests.
-2. Fixed-m weighted sequential sampling; subspace MNB and candidate selection.
+1. Subspace-normalized MNB estimation/prediction and search-based candidate selection,
+   using the verified JMH/weight/sampling helpers.
+2. Consecutive weight-stability controller and full experiment configuration contracts.
 3. Normalized independent-uniform model generation, exact Chapter 3 PSO, final-iteration
    fixed-G ensemble and stopping rules, after report/data validation is complete.
 4. Configurable nested training/search and outer CV/repeats; primary adapted

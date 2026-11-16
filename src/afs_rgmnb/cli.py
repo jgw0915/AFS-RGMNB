@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Extraction, experiment and reporting commands."""
+"""Sparse count-extraction commands; the experiment runner is planned."""
 import argparse
 import json
 import logging

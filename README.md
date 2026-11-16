@@ -109,6 +109,13 @@ See [AGENTS.md](AGENTS.md), [ROADMAP.md](ROADMAP.md),
 [open scientific questions](docs/methodology/open_questions.md), and
 [senior method comparison](docs/references/senior_feature_extraction_comparison.md).
 The fingerprint checker reads reviewed sources without editing either project.
+
+Implemented mathematical helpers: `jmh_scores(X_fit, y_fit, alpha=...)`,
+`initial_probabilities`, `inclusion_proportions`, `update_probabilities`,
+`weight_change`, and `sample_subspace(weights, size, rng=...)`. Nine numerical
+tests cover the exact Chapter 3 equations; 41 tests pass locally in total.
+Initial all-zero scores raise an explicit error because the active normalization
+equation is undefined. No generic entropy, PSO or ensemble substitute is used.
 Older `docs/VALIDATION.md` and `docs/SENIOR_METHODS.md` retain historical context;
 the dated report and current comparison supersede their archive-availability claims.
 
