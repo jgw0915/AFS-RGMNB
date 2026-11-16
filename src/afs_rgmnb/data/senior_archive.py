@@ -218,7 +218,7 @@ def fit_observed_columns(X_fit: sparse.csr_matrix) -> np.ndarray:
     return np.flatnonzero(np.asarray(X_fit.getnnz(axis=0)).ravel()).astype(np.int32)
 
 
-def discover_archive_sources(root: str | Path) -> dict[str, Path]:
+def discover_archive_sources(root: str | Path, include_optional: bool = False) -> dict[str, Path]:
     """Discover verified source names without assuming the archive's folder name."""
     root = Path(root)
     candidates = {
@@ -226,6 +226,8 @@ def discover_archive_sources(root: str | Path) -> dict[str, Path]:
         "fungi": list(root.glob("Program/*/GenePreprocess/GenePreprocess/bin/Debug/fun_instance")),
         "20news": list(root.glob("Program/*/text/20Newsgroup/20newsOutput.txt")),
     }
+    if include_optional:
+        candidates["mdr88"] = list(root.glob("Program/*/text/MDR88/MDR88Output.txt"))
     for key, paths in candidates.items():
         if len(paths) != 1:
             raise ValueError(f"{key}: expected exactly one preserved count source, found {len(paths)}")

@@ -57,7 +57,7 @@ class SamplingModeTests(unittest.TestCase):
         self.assertEqual(report["excluded_class_records"], 12)
 
     def test_duplicates_and_conflicting_labels_have_disjoint_counts(self):
-        args = self.arguments("--sampling-mode", "all")
+        args = self.arguments("--sampling-mode", "all", "--duplicate-policy", "drop")
         records = [Record("1", "a", "same"), Record("2", "b", "same"),
                    Record("3", "a", "duplicate"), Record("4", "a", "duplicate"),
                    Record("5", "b", "unique"), Record("6", "a", "")]
@@ -71,6 +71,18 @@ class SamplingModeTests(unittest.TestCase):
             "conflicting_label_records_removed", "duplicate_content_records_removed",
             "invalid_content_records", "excluded_label_records", "downsampled_unique_records",
             "retained_records")), audit["reader_emitted_records"])
+
+    def test_all_mode_keeps_duplicates_and_conflicts_by_default(self):
+        args = self.arguments("--sampling-mode", "all")
+        records = [Record("1", "a", "same"), Record("2", "b", "same"),
+                   Record("3", "a", "repeat"), Record("4", "a", "repeat")]
+        with patch("afs_rgmnb.data.preprocessing.stream", return_value=iter(records)):
+            retained, audit = sample_records(args, ["a", "b"], return_report=True)
+        self.assertEqual(Counter(r.label for r in retained), Counter(a=3, b=1))
+        self.assertEqual(audit["conflicting_label_records_detected"], 2)
+        self.assertEqual(audit["same_label_duplicate_excess_detected"], 1)
+        self.assertEqual(audit["duplicate_content_records_removed"], 0)
+        self.assertEqual(audit["conflicting_label_records_removed"], 0)
 
     def test_duplicate_sample_ids_fail_before_splitting(self):
         args = self.arguments("--sampling-mode", "all")

@@ -16,8 +16,11 @@ def argument_parser() -> argparse.ArgumentParser:
     p.add_argument("--output", required=True, type=Path)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--sampling-mode", choices=["all", "balanced"], default="balanced",
-                   help="all retains original class sizes after explicit filtering/deduplication; "
+                   help="all retains original class sizes after explicitly configured filtering; "
                         "balanced is the legacy equal-count subset and changes class proportions")
+    p.add_argument("--duplicate-policy", choices=["keep", "drop"], default=None,
+                   help="keep preserves records and reports duplicate content; drop removes "
+                        "conflicts and deduplicates. Omitted: keep in all, drop in balanced")
     p.add_argument("--max-classes", type=int, default=None,
                    help="Class cap only; 0 means all eligible classes, NOT all records. "
                         "Omitted: 0 in all mode, 10 in balanced mode")

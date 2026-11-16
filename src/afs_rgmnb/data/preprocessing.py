@@ -48,9 +48,14 @@ def sampling_settings(args: argparse.Namespace) -> dict:
     if mode == "balanced" and args.samples_per_class < 1:
         raise ValueError("samples_per_class must be positive in balanced mode")
     threshold = max(minimum, args.samples_per_class) if mode == "balanced" else minimum
+    duplicate_policy = getattr(args, "duplicate_policy", None) or (
+        "keep" if mode == "all" else "drop")
+    if duplicate_policy not in {"keep", "drop"}:
+        raise ValueError("duplicate_policy must be keep or drop")
     return {"mode": mode, "minimum_class_size": minimum,
             "class_size_threshold": threshold, "maximum_classes": maximum,
-            "samples_per_class": args.samples_per_class if mode == "balanced" else None}
+            "samples_per_class": args.samples_per_class if mode == "balanced" else None,
+            "duplicate_policy": duplicate_policy}
 
 
 def label_selection_report(counts: Counter, args: argparse.Namespace) -> dict:
@@ -93,7 +98,7 @@ def choose_labels(counts: Counter, args: argparse.Namespace) -> List[str]:
 
 
 def sample_records(args: argparse.Namespace, labels: Sequence[str], *, return_report: bool = False):
-    """Keep all unique records or explicitly balance them, reporting every exclusion.
+    """Keep all records or explicitly balance them, reporting every exclusion.
 
     Duplicate/conflicting content is detected across the entire selected input, even
     in balanced mode. Balanced content storage uses a reservoir; digest/ID indexes
@@ -102,16 +107,17 @@ def sample_records(args: argparse.Namespace, labels: Sequence[str], *, return_re
     settings = sampling_settings(args)
     if settings["mode"] == "balanced":
         LOG.warning("Balanced sampling changes the original class distribution. "
-                    "Use --sampling-mode all for an imbalance-preserving experiment.")
+                    "Use --sampling-mode all to preserve multiclass proportions.")
     rng = random.Random(args.seed)
     reservoirs: Dict[str, List[Record]] = {lab: [] for lab in labels}
     seen, input_counts = Counter(), Counter()
     digests, identifiers = {}, set()
     report = {"mode": settings["mode"], "reader_emitted_records": 0,
+              "duplicate_policy": settings["duplicate_policy"],
               "invalid_content_records": 0, "excluded_label_records": 0,
               "duplicate_content_records_removed": 0,
               "conflicting_label_records_removed": 0,
-              "deduplication_scope": "all valid records in selected classes",
+              "duplicate_audit_scope": "all valid records in selected classes",
               "reader_scope_note": "Reader-level rejected taxonomy/empty fields are not emitted here."}
     wanted = args.samples_per_class + max(10, args.samples_per_class // 2)
     for rec in stream(args):
@@ -133,8 +139,10 @@ def sample_records(args: argparse.Namespace, labels: Sequence[str], *, return_re
             entry = digests[digest]
             entry[0] += 1
             entry[1].add(rec.label)
-            continue
-        digests[digest] = [1, {rec.label}]
+            if settings["duplicate_policy"] == "drop":
+                continue
+        else:
+            digests[digest] = [1, {rec.label}]
         seen[rec.label] += 1
         bucket = reservoirs[rec.label]
         if settings["mode"] == "all" or len(bucket) < wanted:
@@ -144,14 +152,18 @@ def sample_records(args: argparse.Namespace, labels: Sequence[str], *, return_re
             if j < wanted:
                 bucket[j] = rec
     conflicts = {digest for digest, (_, labs) in digests.items() if len(labs) > 1}
-    report["conflicting_label_records_removed"] = sum(digests[key][0] for key in conflicts)
-    report["duplicate_content_records_removed"] = sum(
+    report["conflicting_label_records_detected"] = sum(digests[key][0] for key in conflicts)
+    report["same_label_duplicate_excess_detected"] = sum(
         count - 1 for count, labs in digests.values() if len(labs) == 1)
+    if settings["duplicate_policy"] == "drop":
+        report["conflicting_label_records_removed"] = report["conflicting_label_records_detected"]
+        report["duplicate_content_records_removed"] = report["same_label_duplicate_excess_detected"]
     clean = {label: [] for label in labels}
     for label, bucket in reservoirs.items():
         for rec in bucket:
             normalized = rec.content.upper().replace("U", "T") if args.kind == "dna" else rec.content
-            if hashlib.sha256(normalized.encode("utf-8")).hexdigest() not in conflicts:
+            if settings["duplicate_policy"] == "keep" or (
+                hashlib.sha256(normalized.encode("utf-8")).hexdigest() not in conflicts):
                 clean[label].append(rec)
     final = []
     for label in labels:
@@ -170,7 +182,14 @@ def sample_records(args: argparse.Namespace, labels: Sequence[str], *, return_re
         rng.shuffle(final)
     report["input_selected_class_counts"] = dict(input_counts)
     report["retained_class_counts"] = dict(Counter(rec.label for rec in final))
-    report["downsampled_unique_records"] = len(digests) - len(conflicts) - len(final)
+    eligible = sum(input_counts.values()) - report["conflicting_label_records_removed"] - report["duplicate_content_records_removed"]
+    report["downsampled_records"] = eligible - len(final)
+    # Compatibility field applies only when duplicates were explicitly removed.
+    report["downsampled_unique_records"] = report["downsampled_records"] if settings["duplicate_policy"] == "drop" else 0
+    if settings["duplicate_policy"] == "keep" and (
+        report["conflicting_label_records_detected"] or report["same_label_duplicate_excess_detected"]):
+        LOG.warning("Duplicate content retained by explicit keep policy; use reviewed "
+                    "group-aware splits before making classification performance claims.")
     report["retained_records"] = len(final)
     LOG.info("Selection audit: %s", report)
     return (final, report) if return_report else final

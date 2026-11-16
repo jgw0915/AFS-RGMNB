@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "afs-rgmnb"
+version = "0.2.0"
+description = "Traceable high-dimensional multiclass MNB thesis research framework"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.23,<3",
+    "scipy>=1.9,<2",
+    "scikit-learn>=1.2,<2",
+    "nltk==3.9.2",
+]
+
+[project.scripts]
+afs-rgmnb = "afs_rgmnb.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

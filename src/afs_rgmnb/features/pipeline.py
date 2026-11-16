@@ -182,7 +182,7 @@ def run(args: argparse.Namespace) -> dict:
                 "selected_class_count": len(labels), "n_selected": len(records),
                 "selected_class_counts": dict(Counter(rec.label for rec in records)),
                 "folds": all_summary,
-                "limitations": ["Exact duplicate inputs removed before splitting; near-duplicate/homology leakage NOT excluded.",
+                "limitations": [f"Duplicate policy: {settings['duplicate_policy']}; near-duplicate/homology leakage NOT excluded.",
                                 "Actual feature dimension reported from Dfit, not theoretical 4**k.",
                                 "This is count preprocessing, NOT a reproduction of genetic-code transformations in Lin (2016)."]}
     (args.output / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")

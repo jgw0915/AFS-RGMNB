@@ -71,25 +71,29 @@ def dna_records(args: argparse.Namespace) -> Iterator[Record]:
 
 
 def text_records(args: argparse.Namespace) -> Iterator[Record]:
+    encoding = getattr(args, "encoding", "utf-8")
+    errors = getattr(args, "encoding_errors", "strict")
     if args.text_format == "dir":
         # input/class_name/file.txt: recursive file layout, lexicographic order
         for class_dir in sorted(p for p in args.input.iterdir() if p.is_dir()):
             for path in sorted(p for p in class_dir.rglob("*.txt") if p.is_file()):
-                with open_text(path) as fin:
+                with open_text(path, encoding=encoding, errors=errors) as fin:
                     yield Record(str(path.relative_to(args.input)), class_dir.name, fin.read())
     elif args.text_format == "jsonl":
-        with open_text(args.input) as fin:
+        with open_text(args.input, encoding=encoding, errors=errors) as fin:
             for i, line in enumerate(fin, start=1):
                 if not line.strip():
                     continue
                 row = json.loads(line)
-                label = str(row.get(args.label_col, "")).strip()
-                body = str(row.get(args.text_col, ""))
+                label = str(row.get(args.label_col) or "").strip()
+                body = row.get(args.text_col) or ""
+                if not isinstance(body, str):
+                    raise ValueError(f"{args.input}:{i}: document body must be raw text")
                 if label and body.strip():
                     seqid = str(row.get(args.id_col) or f"row_{i:09d}")
                     yield Record(seqid, label, body)
     else:
-        with open_text(args.input) as fin:
+        with open_text(args.input, encoding=encoding, errors=errors) as fin:
             rdr = csv.DictReader(fin, delimiter=args.delimiter)
             required = {args.label_col, args.text_col}
             if not required.issubset(rdr.fieldnames or []):

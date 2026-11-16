@@ -93,18 +93,19 @@ def vocabulary_audit(dataset, seed: int) -> dict:
 
 def audit_one(root: Path, key: str, output: Path, seed: int, export: bool) -> dict:
     start = time.perf_counter()
-    sources = discover_archive_sources(root)
+    sources = discover_archive_sources(root, include_optional=key == "mdr88")
     source = sources[key]
-    dataset = read_document_counts(source) if key == "20news" else read_gene_instances(source)
+    is_document = key in {"20news", "mdr88"}
+    dataset = read_document_counts(source, n_features=12511 if key == "mdr88" else 83635) if is_document else read_gene_instances(source)
     load_seconds = time.perf_counter() - start
     report = summarize_counts(dataset)
     report.update({"dataset": key, "source": source.relative_to(root).as_posix(),
                    "representation": "preserved precomputed occurrence counts",
                    "label_policy": "preserve all original multiclass labels; no binary remap or resampling",
-                   "raw_sequence_or_text_available": False,
+                   "raw_sequence_or_text_available": (source.parent / "MDR88.txt").is_file() if key == "mdr88" else False,
                    "original_accession_or_message_ids_available": False,
-                   "taxonomic_hierarchy_available": False if key != "20news" else None,
-                   "biological_rank": "unverified; metadata provide names only" if key != "20news" else None,
+                   "taxonomic_hierarchy_available": None if is_document else False,
+                   "biological_rank": None if is_document else "unverified; metadata provide names only",
                    "sequence_lengths": None,
                    "invalid_or_ambiguous_nucleotides": None,
                    "near_duplicate_sequences_or_text": "not assessable without raw data",
@@ -144,8 +145,8 @@ def audit_one(root: Path, key: str, output: Path, seed: int, export: bool) -> di
             "counts": f"{key}_counts.npz", "labels": f"{key}_labels.npy",
             "identifiers": f"{key}_identifiers.tsv",
             "orientation": "rows=samples; columns=preserved source feature IDs",
-            "column_to_source_id": "column + 1" if key == "20news" else "column",
-            "dna_feature_id_to_sequence_mapping": "unavailable; do not assume ACGT lexical order" if key != "20news" else None,
+            "column_to_source_id": "column + 1" if is_document else "column",
+            "dna_feature_id_to_sequence_mapping": None if is_document else "unavailable; do not assume ACGT lexical order",
             "vocabulary": "declared source-ID space, including all-zero columns; fit-only selection required for experiments",
         }
         report["export_seconds"] = time.perf_counter() - export_start
@@ -158,7 +159,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--archive", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--dataset", choices=["all", "20news", "bacteria", "fungi"], default="all")
+    parser.add_argument("--dataset", choices=["all", "20news", "bacteria", "fungi", "mdr88"], default="all",
+                        help="all audits the three priority datasets; mdr88 is optional and separate")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--export-matrices", action="store_true")
     args = parser.parse_args()
