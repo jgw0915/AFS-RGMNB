@@ -20,26 +20,39 @@
   runtime/memory, source fingerprints and two-page professor PDF visually verified.
 - [x] Review and checkpoint report/data changes locally; no push performed.
 
+## Pre-PSO milestone (continued November 17)
+
+- [x] Stable canonical sparse-vector groups, including conflicting-label groups.
+- [x] Group-disjoint outer/nested SGKF; all classes/rows retained; realized class
+  deviations, source IDs, group/sample overlaps and all five fold plans audited.
+- [x] Dfit-only observed columns and consistent original-feature-ID mapping.
+- [x] Subspace-normalized MNB (3.7)-(3.8), empirical priors and reusable scoring.
+- [x] G×L candidates, once-per-fit JMH, Dsearch accuracy and deterministic first ties.
+- [x] Synthetic end-to-end coverage; **68 tests pass**, including all previous41.
+- [x] Full20News smoke and repeat with pinned dependencies:12 models,3 selected
+  subspaces; test unscored; full logs/artifacts local and ignored.
+- [x] Four requested derived reports in `reports/2026-11-16/`; professor report unchanged.
+- [ ] New-commit Python 3.10 GitHub Actions, after explicit push approval.
+
 ## Scientific or source blocks
 
 - Raw 20News text and gene sequences/accessions/lineages were not recovered.
 - Gene class codes/names do not establish a consistent Family or Genus target.
 - Classes with two records cannot be present in fit/search/test simultaneously;
   full gene fivefold experiments need a reviewed target/eligibility protocol.
-- Identical count vectors (some with different labels) require a reviewed
-  grouping/quality policy before performance claims.
+- Exact identical vectors now remain group-disjoint without label repair;
+  near duplicates and historical upstream preprocessing still limit benchmark claims.
 - Exact historical stoplist/stemmer and DNA feature-ID-to-sequence order are unknown.
 - Active Chapter 3 does not define all-zero JMH normalization; main baseline's
   multiclass chi-square aggregation and final hyperparameter settings need review.
 
 ## Subsequent implementation
 
-1. Subspace-normalized MNB estimation/prediction and search-based candidate selection,
-   using the verified JMH/weight/sampling helpers.
-2. Consecutive weight-stability controller and full experiment configuration contracts.
-3. Normalized independent-uniform model generation, exact Chapter 3 PSO, final-iteration
-   fixed-G ensemble and stopping rules, after report/data validation is complete.
-4. Configurable nested training/search and outer CV/repeats; primary adapted
+1. Separately scope normalized independent-uniform model generation and numerical
+   constraints against the unchanged active Chapter3. No initialization is implemented yet.
+2. Exact Chapter3 PSO and its constraints/stopping, in a subsequent milestone.
+3. Fixed-G voting, consecutive weight stability and final-iteration AFS loop.
+4. Formal outer CV/repeats; primary adapted
    Chi-square + Bagging-MNB comparator, optional standard classifiers and ablations.
 5. Versioned experiment records, timing/memory, per-class results, aggregate Chapter 4
    tables and figures. Final settings require scientific decisions, not guessed defaults.

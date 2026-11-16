@@ -61,16 +61,16 @@ The implementation status section below is updated only after code verification.
 |---|---|---|---|---|---|---|
 | 3.1, 7–24 | `sec:pso-framework`, `fig:chapter3-main-flow`, `tab:method-notation` | Full ordered flow; fit/search/test to final fixed-size ensemble and test metrics | `methods/ensemble.py`, `experiments/runner.py` | all method and split settings | Each outer iteration rebuilds G members; final ensemble is H_T; test is absent from fit API | Specified; figure simplifies the detailed prose (see below) |
 | 3.2.1, 33–42 | `sec:method-extraction` | Documents → word occurrence counts; DNA → overlapping length-8 windows with stride 1 → count matrix | `features/dna_kmer.py`, `features/document.py`, `features/vectorization.py` | DNA k=8 fixed canonically; document tokenizer/stopwords explicit | Repeated windows retained, no normalization/TF-IDF, nonnegative integers, stable columns | Count semantics verified; ambiguous-base, U/T, stopword/stemming details not specified in body |
-| 3.2.2, 44–49 | `sec:method-data-split` | Stratified K-fold test; each outer train is split into disjoint fit/search; only search scores candidates and PSO | `data/splitting.py`, `experiments/runner.py` | K≥2; fit/search ratio; seed | Disjoint indices; outer test covers each row once per repetition; all classes in fit/search; fit transformations do not see test | Specified split structure; no final K or ratio in active body |
-| 3.3.1, 61–68 | `eq:method-md-estimates` (3.1) | `p_hat_yj=(N_yj+alpha)/(sum_k N_yk+d*alpha)`, `pi_hat_y=n_y/n_fit`; fit counts → class probabilities | `methods/feature_scoring.py`, `methods/mnb.py` | alpha>0 | Row sums=1; positive probabilities; empirical priors; occurrence totals (not presence counts) | Implemented for JMH in feature_scoring.py; candidate MNB still planned |
+| 3.2.2, 44–49 | `sec:method-data-split` | Stratified K-fold test; each outer train is split into disjoint fit/search; only search scores candidates and PSO | `data/splitting.py`, `experiments/runner.py` | K≥2; fit/search ratio; seed | Disjoint indices; outer test covers each row once per repetition; all classes in fit/search; fit transformations do not see test | Implemented group-disjoint approximate stratification as explicit evaluation extension; all-class coverage/overlaps audited; fit-only mapping |
+| 3.3.1, 61–68 | `eq:method-md-estimates` (3.1) | `p_hat_yj=(N_yj+alpha)/(sum_k N_yk+d*alpha)`, `pi_hat_y=n_y/n_fit`; fit counts → class probabilities | `methods/feature_scoring.py`, `methods/mnb.py` | alpha>0 | Row sums=1; positive probabilities; empirical priors; occurrence totals (not presence counts) | Implemented for JMH and reusable sparse class statistics; occurrence and empirical-prior tests pass |
 | 3.3.1, 69–75 | `eq:method-md-complement` (3.2) | `p_bar_yj=sum_(y'≠y)[pi_hat_y'/(1-pi_hat_y)]p_hat_y'j` | `methods/feature_scoring.py` | none | Mixture excludes target class; weights sum=1; ≥2 represented classes | Implemented; class-frequency mixture tested against a hand calculation |
 | 3.3.1, 76–89 | `eq:method-jmh-score` (3.3) | `s_j=sum_y[p_hat*log(p_hat/p_bar)+(1-p_hat)*log((1-p_hat)/(1-p_bar))]`; probabilities → length-d scores | `methods/feature_scoring.py` | same alpha | s≥0 (floating roundoff considered); equal class feature probabilities give zero; two classes reduce to Jeffreys divergence | Implemented; occurrence-count, binary Jeffreys and multiclass tests pass |
 | 3.3.1, 91–98 | `eq:method-initial-sampling` (3.4) | `q_j=(1-epsilon)*s_j/sum_k s_k+epsilon/d` | `methods/adaptive_sampling.py` | 0<epsilon<1 | sums=1; q≥epsilon/d; larger score gives larger q | Implemented for positive score sum; all-zero case explicitly raises (Q01) |
 | 3.3.1, 99–103 | `eq:method-sampling-weights` (3.5) | invariant `q_j>0`, `sum_j q_j=1` | `methods/adaptive_sampling.py`, `methods/random_subspace.py` | none | Reject negative, nonfinite, zero-mass weights; all produced distributions valid | Implemented validation and numerical distribution tests |
-| 3.3.2, 105–116 | `eq:method-sequential-sampling` (3.6) | From remaining R, draw j with `q_j/sum_(k∈R)q_k`, remove j; repeat m times independently for each candidate | `methods/random_subspace.py` | fixed 2≤m≤d, G≥1, L≥1, RNG seed | Exactly m unique valid columns; sequential conditional probabilities; separate candidates may duplicate | Implemented exact sequential fixed-m sampler; candidate selection still planned |
-| 3.3.3, 118–132 | `eq:method-subspace-mnb-estimates` (3.7) | `theta_tilde_yj=(N_yj+alpha)/(sum_(k∈S)N_yk+m*alpha)`; empirical priors reused | `methods/mnb.py` | alpha>0, selected S | Per-class sum over selected m features=1; renormalize within subspace; sparse fit counts | Verified |
-| 3.3.3, 135–143 | `eq:method-subspace-mnb-prediction` (3.8) | `argmax_y[log(pi_hat_y)+sum_(j∈S)x_j log(theta_tilde_yj)]` | `methods/mnb.py` | fixed class order | Sparse/dense agreement; all-zero subspace predicts maximal prior; no multinomial coefficient needed for argmax | Verified; candidate prediction ties use documented stable class order |
-| 3.3.4, 145–157 | `eq:method-subspace-choice` (3.9) | For each group, choose candidate maximizing classification accuracy on search; emit G selected subspaces | `methods/random_subspace.py`, `methods/ensemble.py` | G,L,m | Exactly one per group; accuracy only on search; deterministic first-candidate tie policy | Verified; source does not specify candidate tie order |
+| 3.3.2, 105–116 | `eq:method-sequential-sampling` (3.6) | From remaining R, draw j with `q_j/sum_(k∈R)q_k`, remove j; repeat m times independently for each candidate | `methods/random_subspace.py` | fixed 2≤m≤d, G≥1, L≥1, RNG seed | Exactly m unique valid columns; sequential conditional probabilities; separate candidates may duplicate | Implemented and reused by GxL selector; independent duplicate sets allowed |
+| 3.3.3, 118–132 | `eq:method-subspace-mnb-estimates` (3.7) | `theta_tilde_yj=(N_yj+alpha)/(sum_(k∈S)N_yk+m*alpha)`; empirical priors reused | `methods/mnb.py` | alpha>0, selected S | Per-class sum over selected m features=1; renormalize within subspace; sparse fit counts | Implemented in methods/mnb.py; hand calculation and equivalent sklearn checks pass |
+| 3.3.3, 135–143 | `eq:method-subspace-mnb-prediction` (3.8) | `argmax_y[log(pi_hat_y)+sum_(j∈S)x_j log(theta_tilde_yj)]` | `methods/mnb.py` | fixed class order | Sparse/dense agreement; all-zero subspace predicts maximal prior; no multinomial coefficient needed for argmax | Implemented sparse float64 scoring; zero-row and deterministic class-order ties tested |
+| 3.3.4, 145–157 | `eq:method-subspace-choice` (3.9) | For each group, choose candidate maximizing classification accuracy on search; emit G selected subspaces | `methods/random_subspace.py`, `methods/ensemble.py` | G,L,m | Exactly one per group; accuracy only on search; deterministic first-candidate tie policy | Implemented select_subspaces: one first-best search-accuracy candidate per group; synthetic and real evidence |
 | 3.4.1, 164–176 | `eq:method-mnb-constraints` (3.10) | Positive priors across M classes sum=1; each conditional row across m selected features sums=1 | `methods/mnb.py`, `methods/random_generation.py` | M≥2,m≥2 | Strict positivity and block sums, finite logs | Verified |
 | 3.4.1, 177–184 | `eq:method-mnb-initialization` (3.11) | Independent U,V∼Uniform(0,1); normalize U across classes and V within each class | `methods/random_generation.py` | RNG seed, M,m,N_p | Deterministic fixed seed; valid blocks; separate particle draws | Verified; NOT Dirichlet(1), not uniform on simplex; no fit-derived prior in random candidates |
 | 3.4.2, 196–206 | `eq:method-pso-particle-position` (3.12) | One position encodes pi and theta, M(1+m) coordinates; velocities initialize Uniform[-vmax,vmax] | `methods/random_generation.py`, `methods/pso.py` | N_p, vmax>0 | Pack/unpack round trip; class/feature ordering stable | Verified representation dimension; exact flat layout is routine implementation choice |
@@ -118,8 +118,10 @@ The initial source audit preceded implementation. Verified APIs now available:
 - `sample_subspace(weights, size, rng=...)` implements (3.6) with exact remaining-weight renormalization.
 
 Nine numerical tests in `tests/test_chapter3_sampling.py` pass; the full suite has
-41 passing tests. All-zero JMH initialization fails explicitly. These helpers
-are not a fitted AFS-RGMNB classifier or an empirical performance result.
+41 passing tests at that earlier milestone. The pre-PSO continuation now has68
+passing tests and adds SubspaceMNB, candidate selection and duplicate-aware data
+splits. All-zero JMH initialization still fails explicitly. This is not the full
+AFS-RGMNB classifier or a final comparative performance result.
 
 Remaining planned APIs (rows may also list existing helper names):
 
@@ -141,3 +143,29 @@ dataset validation. Method correctness, data-validation evidence and experiment
 results must remain separate. `specification_status.md` records the reviewed
 source fingerprints; `open_questions.md` distinguishes missing scientific choices
 from explicit engineering conventions.
+
+## Verified pre-PSO continuation
+
+`data/splitting.py` groups canonical exact count vectors without labels, then
+uses outer and nested StratifiedGroupKFold. Nested fold allocation minimizes only
+search-size and fit/search class-proportion deviations from outer train; no model
+or test score is consulted. This is an explicitly requested evaluation extension
+to the active stratified-split specification, not a rewritten thesis equation.
+All rows and cross-label conflicts remain; realized deviations and all-class
+coverage are recorded. The Dfit-only mask preserves local/source feature IDs.
+
+`methods/mnb.py` implements `class_statistics`, `estimate_parameters`,
+`MNBParameters`, `class_log_scores` and `SubspaceMNB` for (3.7)-(3.8).
+`methods/random_subspace.py:select_subspaces` computes JMH once on fit, generates
+GxL fixed-m candidates, fits each only on fit, scores accuracy only on search and
+keeps the first maximum in each group per (3.9). It returns models, candidate
+statistics, selected subspaces, weights and timing in reusable dataclasses.
+
+`experiments/pre_pso.py` and `scripts/run_pre_pso.py` connect the stages with a
+fingerprinted source and development config. All five outer group splits are
+audited; twelve models are evaluated only in outer fold 0. Two pinned-library
+20News executions reproduce split arrays, feature mapping, JMH/q and candidate
+results. Test accuracy is absent. All27new tests plus prior 41 pass (68 total).
+Reports are under `reports/2026-11-16/{implementation_status,20news_split_audit,
+subspace_mnb_validation,pre_pso_integration}.md`; execution date is November 17.
+Subsequent random initialization/PSO/voting/full AFS loop remain out of scope.

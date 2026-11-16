@@ -46,14 +46,14 @@ Python/library versions separately.
 
 ## Audit preserved senior counts
 
-The read-only archive is locally named `107-???/` (author ???). It is
+The read-only archive is locally named `107-林幸辰/` (author 蔡幸辰). It is
 ignored as an entire directory. Do not execute legacy binaries or concatenate
 historical binary experiments. The audit discovers its actual internal paths:
 
 ```powershell
-python scripts/validate_senior_datasets.py --archive '.\107-???' --output '.\outputs\2026-11-16\verified_run' --dataset all --export-matrices
+python scripts/validate_senior_datasets.py --archive '.\107-林幸辰' --output '.\outputs\2026-11-16\verified_run' --dataset all --export-matrices
 # Optional reduced MDR88 source, audited separately:
-python scripts/validate_senior_datasets.py --archive '.\107-???' --output '.\outputs\2026-11-16\optional_mdr88' --dataset mdr88
+python scripts/validate_senior_datasets.py --archive '.\107-林幸辰' --output '.\outputs\2026-11-16\optional_mdr88' --dataset mdr88
 ```
 
 Outputs are sparse NPZ counts, NPY labels, archive identifier TSVs and JSON
@@ -113,7 +113,8 @@ The fingerprint checker reads reviewed sources without editing either project.
 Implemented mathematical helpers: `jmh_scores(X_fit, y_fit, alpha=...)`,
 `initial_probabilities`, `inclusion_proportions`, `update_probabilities`,
 `weight_change`, and `sample_subspace(weights, size, rng=...)`. Nine numerical
-tests cover the exact Chapter 3 equations; 41 tests pass locally in total.
+tests cover the exact Chapter 3 equations; 41 tests passed at that milestone.
+The pre-PSO continuation below expands the suite to 68.
 Initial all-zero scores raise an explicit error because the active normalization
 equation is undefined. No generic entropy, PSO or ensemble substitute is used.
 Older `docs/VALIDATION.md` and `docs/SENIOR_METHODS.md` retain historical context;
@@ -122,3 +123,41 @@ the dated report and current comparison supersede their archive-availability cla
 No raw datasets, senior programs, thesis source or heavy outputs belong in Git.
 Review staged paths and `git check-ignore -v` before local commits. Never push,
 merge, or upload private research materials without user authorization.
+
+## Working pre-PSO milestone
+
+The duplicate-aware 20News flow now runs end to end:
+exact count-vector groups → outer/nested approximately stratified group splits →
+Dfit-only feature map → JMH → initial q → G×L subspace MNB candidates →
+first-best **Dsearch accuracy** choice per group. Dtest is not scored.
+
+```powershell
+# Activate an environment installed from requirements.txt first.
+python scripts/run_pre_pso.py --archive '.\107-林幸辰' --output '.\outputs\pre_pso_smoke'
+```
+
+Configuration lives in `configs/experiments/20news_pre_pso_smoke.json`; G=3,L=4,
+m=128,alpha=1,epsilon=.05,seed=42 are development settings. The runner checks
+the source fingerprint and refuses research outputs in tracked directories.
+Original IDs/classes/source feature IDs, split arrays, per-class deviations,
+candidate draws/accuracies/ties, runtime/memory and source-code hashes are saved
+in the ignored output directory.
+
+The canonical pinned-library run retains all 18,828 records / 20 classes. Outer fold 0
+has fit/search/test sizes 12,049/3,020/3,759 and 65,540 fit-observed columns, with
+zero sample/group overlap. All12 candidates are evaluated; the selected candidate
+indices are `[0,0,0]`. Two fresh seeded runs match exactly. Library versions are
+part of the protocol: the earlier sklearn 1.9 run differs from pinned sklearn 1.4.2.
+
+New APIs: `group_aware_splits`, `prepare_feature_partitions`, `class_statistics`,
+`estimate_parameters`, `SubspaceMNB`, `select_subspaces` and `run_pre_pso`.
+**68 tests pass locally**, including all prior 41, under both current and pinned
+dependencies on Python 3.12. New-commit Python 3.10 CI status is tracked separately.
+See [implementation status](reports/2026-11-16/implementation_status.md),
+[split audit](reports/2026-11-16/20news_split_audit.md),
+[MNB validation](reports/2026-11-16/subspace_mnb_validation.md) and
+[integration record](reports/2026-11-16/pre_pso_integration.md).
+
+Exact-vector grouping cannot recover raw documents or undo historical upstream
+preprocessing leakage. No random MNB initialization, PSO, voting, full AFS loop
+or formal Chapter4 classifier comparison is included in this milestone.

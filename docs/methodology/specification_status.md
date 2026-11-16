@@ -47,7 +47,7 @@ Scientific omissions and explicit engineering choices are in
 |---|---|---|
 | 3.2, `sec:method-extraction`, `sec:method-data-split` | `data/{readers,preprocessing,taxonomy,splitting}.py`, `features/{dna_kmer,document,vectorization}.py` | Modular count readers/extractors and split preflight verified; three real-source exports and report complete; see dated validation |
 | 3.3.1, `eq:method-md-estimates` through `eq:method-sampling-weights` | `methods/feature_scoring.py`, `methods/adaptive_sampling.py` | JMH and initial probabilities implemented with numerical tests; zero-score inputs fail explicitly (Q01) |
-| 3.3.2–3.3.4, `eq:method-sequential-sampling` through `eq:method-subspace-choice` | `methods/random_subspace.py`, `methods/mnb.py` | Sequential fixed-m sampler implemented; subspace MNB and candidate selection remain planned |
+| 3.3.2–3.3.4, `eq:method-sequential-sampling` through `eq:method-subspace-choice` | `methods/random_subspace.py`, `methods/mnb.py` | Sequential sampler, subspace MNB and first-best search-accuracy candidate selection implemented and tested |
 | 3.4.1, `eq:method-mnb-constraints`, `eq:method-mnb-initialization` | `methods/random_generation.py` | Independent normalized uniforms mapped; implementation planned |
 | 3.4.2, `eq:method-pso-particle-position` through `eq:method-vote` | `methods/pso.py`, `methods/ensemble.py` | Exact representation, fitness, scalar-rho update and fixed-G hard vote mapped; implementation planned |
 | 3.5, `eq:method-inclusion` through `eq:method-weight-change` | `methods/adaptive_sampling.py`, `methods/ensemble.py` | Inclusion/threshold/normalization and L1 change implemented; consecutive stopping/full loop remain planned |
@@ -108,3 +108,11 @@ is under ignored `inspection_methodology/`; no reference PDF or preview is stage
 Implementation continuation: 41 local tests pass (32 data/preprocessing tests and
 9 numerical Chapter 3 sampling tests). No PSO, ensemble or final accuracy experiment
 is complete. Source fingerprints remain unchanged; the thesis remains read-only.
+
+Pre-PSO continuation (2026-11-17): duplicate-aware group-disjoint evaluation,
+fit-only mapping, subspace MNB and GxL selection are complete;68tests pass.
+The group-aware split is a documented evaluation extension requested by the user;
+no thesis text/equation changed. Two clean-source real20News runs match under
+pinned dependencies. Formal CV accuracy comparisons, random initialization and
+PSO remain unimplemented. New-commit Python 3.10 CI is reported separately and
+must not be inferred from the prior7a93149 workflow.
