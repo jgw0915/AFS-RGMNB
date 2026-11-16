@@ -13,3 +13,22 @@ The November 16 professor report takes priority over PSO and further restructuri
 - Saved initial usable report before full extraction runs. Subsequent report updates must distinguish senior-reported figures from measured results.
 
 The interrupted refactor is preserved rather than restarted. Heavy outputs belong in ignored `outputs/2026-11-16/`.
+
+## Continuation checkpoint
+
+- Recovered clean branch HEAD `bc8368e`, already matching an existing remote
+  branch from prior work. This continuation has performed no push or merge.
+- Independently read all saved JSON, then exported and reloaded the three full
+  matrices in `outputs/2026-11-16/verified_run/`; source fingerprints match prior
+  outputs. Derived measurements and complete numeric class distributions are
+  preserved in this report directory.
+- The three priority inputs are precomputed counts. All original records/classes
+  remain. No full classifier CV or raw extraction has been completed.
+- MDR88 text and count files are present, but both have 14,680 records/3 classes,
+  with the original seven-record fourth class absent upstream. Corrected prior
+  availability uncertainty without relabeling or excluding records.
+- Fixed raw-document encoding flags and JSON null handling; all-mode duplicates
+  now remain by default, with explicit optional removal. Expanded local suite:
+  **32 passing tests**, preserving all original 11.
+- Added package metadata, research instructions and roadmap. Mathematical method
+  components remain planned pending the report and scientific decisions.

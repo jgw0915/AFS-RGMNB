@@ -1,0 +1,243 @@
+[
+  {
+    "dataset": "20news",
+    "samples": 18828,
+    "classes": 20,
+    "shape": [
+      18828,
+      83635
+    ],
+    "declared_feature_dimensions": 83635,
+    "observed_feature_dimensions": 83415,
+    "nnz": 1505793,
+    "sparsity": 0.9990437465323903,
+    "csr_bytes": 18144832,
+    "class_size_min": 628,
+    "class_size_median": 981.5,
+    "class_size_max": 999,
+    "minimum_stored_count": 1,
+    "maximum_stored_count": 301,
+    "zero_feature_rows": 0,
+    "invalid_records": 0,
+    "duplicate_identifiers": 0,
+    "duplicates": {
+      "definition": "identical sparse count vectors; raw sequence/text identity unavailable",
+      "duplicate_groups": 38,
+      "duplicate_rows_including_first": 89,
+      "duplicate_excess_rows": 51,
+      "conflicting_label_groups": 5,
+      "conflicting_label_rows": 10
+    },
+    "source_fingerprint_sha256": "2f18b7b11c294dda1d716988f38a4c1184c0344c1eec73ad0f510d0a887b1528",
+    "total_audit_seconds": 1.2953074998222291,
+    "export_seconds": 0.5075099999085069,
+    "process_lifetime_peak_rss_bytes": 193077248,
+    "python": "3.12.7",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1",
+    "scikit_learn": "1.9.0",
+    "source_code_commit": "bc8368ea467a4b8635f4a9d85a5ae2043adbc429",
+    "source_code_worktree_dirty": false,
+    "validation_code_sha256": {
+      "scripts/validate_senior_datasets.py": "1c9a1b9145978a0f87d95ce75a7106a8a733e09a8fc7b4ac58b5919d2c1d3ffb",
+      "src/afs_rgmnb/data/senior_archive.py": "767d67131597c20296dfed35135ebf0409448f7a91cd0fde97ba736414813db6"
+    },
+    "vocabulary_audit": {
+      "protocol": "three_way_conversion_audit",
+      "note": "One 5-fold outer split and 20% inner search split; audit settings, not approved final settings.",
+      "seed": 42,
+      "vocabulary_fit_scope": "fit rows only",
+      "observed_fit_features": 66570,
+      "roles": {
+        "fit": {
+          "shape": [
+            12049,
+            66570
+          ],
+          "nnz": 960128,
+          "zero_feature_rows": 0,
+          "class_count": 20,
+          "row_indices_sha256": "f1e6c5e38ee4947752dec75ed67696db515a433be4218f5b21f9555c0458c1f0"
+        },
+        "search": {
+          "shape": [
+            3013,
+            66570
+          ],
+          "nnz": 229518,
+          "zero_feature_rows": 0,
+          "class_count": 20,
+          "row_indices_sha256": "fc750fa881ad303fac07bd56e2af90e5d570b40554d77f4a43c56ce234f6bc79"
+        },
+        "test": {
+          "shape": [
+            3766,
+            66570
+          ],
+          "nnz": 296880,
+          "zero_feature_rows": 0,
+          "class_count": 20,
+          "row_indices_sha256": "2cee2a7e40e2d973b678e3306f756e23a066a4f778ff3af848d26dfcde9fc9a3"
+        }
+      },
+      "duplicate_policy": "retained for full-source audit; not safe performance splits"
+    },
+    "classes_below_five": 0,
+    "samples_in_classes_below_five": 0,
+    "classes_of_size_two": 0
+  },
+  {
+    "dataset": "bacteria",
+    "samples": 6386,
+    "classes": 741,
+    "shape": [
+      6386,
+      65536
+    ],
+    "declared_feature_dimensions": 65536,
+    "observed_feature_dimensions": 64934,
+    "nnz": 8792221,
+    "sparsity": 0.9789917560867706,
+    "csr_bytes": 105532200,
+    "class_size_min": 2,
+    "class_size_median": 4.0,
+    "class_size_max": 503,
+    "minimum_stored_count": 1,
+    "maximum_stored_count": 8,
+    "zero_feature_rows": 0,
+    "invalid_records": 0,
+    "duplicate_identifiers": 0,
+    "duplicates": {
+      "definition": "identical sparse count vectors; raw sequence/text identity unavailable",
+      "duplicate_groups": 31,
+      "duplicate_rows_including_first": 67,
+      "duplicate_excess_rows": 36,
+      "conflicting_label_groups": 0,
+      "conflicting_label_rows": 0
+    },
+    "source_fingerprint_sha256": "b1fbafeb26535d5bf8fe1823c36916dd333b2c0e13afb36d7a12c976b8699b6c",
+    "total_audit_seconds": 64.08909519994631,
+    "export_seconds": 1.2973799002356827,
+    "process_lifetime_peak_rss_bytes": 414105600,
+    "python": "3.12.7",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1",
+    "scikit_learn": "1.9.0",
+    "source_code_commit": "bc8368ea467a4b8635f4a9d85a5ae2043adbc429",
+    "source_code_worktree_dirty": true,
+    "validation_code_sha256": {
+      "scripts/validate_senior_datasets.py": "1c9a1b9145978a0f87d95ce75a7106a8a733e09a8fc7b4ac58b5919d2c1d3ffb",
+      "src/afs_rgmnb/data/senior_archive.py": "767d67131597c20296dfed35135ebf0409448f7a91cd0fde97ba736414813db6"
+    },
+    "vocabulary_audit": {
+      "protocol": "extraction_audit_only_two_way",
+      "note": "Two-way stratified 50/50 conversion audit only. Full multiclass data contain classes of size 2; class-preserving Dfit/Dsearch/Dtest is impossible. No search split or thesis performance result is produced.",
+      "seed": 42,
+      "vocabulary_fit_scope": "fit rows only",
+      "observed_fit_features": 63682,
+      "roles": {
+        "fit": {
+          "shape": [
+            3193,
+            63682
+          ],
+          "nnz": 4394491,
+          "zero_feature_rows": 0,
+          "class_count": 741,
+          "row_indices_sha256": "07bdb04116721b64e53a584a95a0020203c22b6d7afb5eafeb53093670f0f8a8"
+        },
+        "heldout": {
+          "shape": [
+            3193,
+            63682
+          ],
+          "nnz": 4395128,
+          "zero_feature_rows": 0,
+          "class_count": 741,
+          "row_indices_sha256": "fd40be1e5dc3cf28ec0cd1d37e6b4f6794f731d96aee34fa81615bb95cbd2d90"
+        }
+      },
+      "duplicate_policy": "retained for full-source audit; not safe performance splits"
+    },
+    "classes_below_five": 416,
+    "samples_in_classes_below_five": 1122,
+    "classes_of_size_two": 210
+  },
+  {
+    "dataset": "fungi",
+    "samples": 7730,
+    "classes": 926,
+    "shape": [
+      7730,
+      65536
+    ],
+    "declared_feature_dimensions": 65536,
+    "observed_feature_dimensions": 61563,
+    "nnz": 7138523,
+    "sparsity": 0.9859087688648377,
+    "csr_bytes": 85693200,
+    "class_size_min": 2,
+    "class_size_median": 3.0,
+    "class_size_max": 473,
+    "minimum_stored_count": 1,
+    "maximum_stored_count": 9,
+    "zero_feature_rows": 0,
+    "invalid_records": 0,
+    "duplicate_identifiers": 0,
+    "duplicates": {
+      "definition": "identical sparse count vectors; raw sequence/text identity unavailable",
+      "duplicate_groups": 225,
+      "duplicate_rows_including_first": 671,
+      "duplicate_excess_rows": 446,
+      "conflicting_label_groups": 16,
+      "conflicting_label_rows": 46
+    },
+    "source_fingerprint_sha256": "1ebce9de992d28385d5a79c0656cc648a4922b8e8d413507a6167dfac73d539e",
+    "total_audit_seconds": 69.49580310005695,
+    "export_seconds": 0.9079392002895474,
+    "process_lifetime_peak_rss_bytes": 364765184,
+    "python": "3.12.7",
+    "numpy": "2.4.3",
+    "scipy": "1.17.1",
+    "scikit_learn": "1.9.0",
+    "source_code_commit": "bc8368ea467a4b8635f4a9d85a5ae2043adbc429",
+    "source_code_worktree_dirty": true,
+    "validation_code_sha256": {
+      "scripts/validate_senior_datasets.py": "1c9a1b9145978a0f87d95ce75a7106a8a733e09a8fc7b4ac58b5919d2c1d3ffb",
+      "src/afs_rgmnb/data/senior_archive.py": "767d67131597c20296dfed35135ebf0409448f7a91cd0fde97ba736414813db6"
+    },
+    "vocabulary_audit": {
+      "protocol": "extraction_audit_only_two_way",
+      "note": "Two-way stratified 50/50 conversion audit only. Full multiclass data contain classes of size 2; class-preserving Dfit/Dsearch/Dtest is impossible. No search split or thesis performance result is produced.",
+      "seed": 42,
+      "vocabulary_fit_scope": "fit rows only",
+      "observed_fit_features": 57411,
+      "roles": {
+        "fit": {
+          "shape": [
+            3865,
+            57411
+          ],
+          "nnz": 3574974,
+          "zero_feature_rows": 0,
+          "class_count": 926,
+          "row_indices_sha256": "c411e8d4ad2bea5001971525ff0fd81fd39f50ff08f1209cc6879a3376b3b915"
+        },
+        "heldout": {
+          "shape": [
+            3865,
+            57411
+          ],
+          "nnz": 3556495,
+          "zero_feature_rows": 0,
+          "class_count": 926,
+          "row_indices_sha256": "71948aee05a81df98795dee1a99a05bfe758a2da5ec46848d0f0ed3fbf1c5356"
+        }
+      },
+      "duplicate_policy": "retained for full-source audit; not safe performance splits"
+    },
+    "classes_below_five": 569,
+    "samples_in_classes_below_five": 1499,
+    "classes_of_size_two": 302
+  }
+]

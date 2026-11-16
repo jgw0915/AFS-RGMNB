@@ -1,126 +1,117 @@
-# AFS-RGMNB — Python 3.10 feature extraction for high-dimensional MNB
+# AFS-RGMNB
 
-Reproducible, **count-based** preprocessing for high-dimensional **DNA sequence** and **document** classification. This is the feature extraction layer for the NCKU master thesis (randomly-generated ensemble of Multinomial Naive Bayes). It does **not** implement the thesis's JMH feature scoring, random subspace search, random MNB model generation, or PSO yet.
+A Python 3.10-compatible research framework for the NCKU master's thesis on
+randomly generated MNB ensembles for high-dimensional **multiclass** classification.
+The active sibling LaTeX Chapter 3 defines the algorithm. Implementation is
+incremental; full PSO/ensemble and final Chapter 4 experiments are not complete.
 
-**Research integrity and current status (2026-11-16):** Senior archive and datasets are **not bundled in this public repo**. The extracted archive was inspected locally, and its **precomputed multiclass count matrices** for 20Newsgroup, Bacteria, and Fungi were successfully audited (18,828/6,386/7,730 samples; **83,415/64,934/61,563 observed full-matrix feature columns**). This does **not** mean raw-document or DNA feature re-extraction is completed. Taxonomic ranks of the gene class labels remain unverified. See [`reports/2026-11-16/`](reports/2026-11-16/) for up-to-date results; `docs/VALIDATION.md` is an earlier dated baseline.
+## November 16 progress report
 
-## Install (lab server, Python 3.10)
+Start with [the Chinese professor summary](reports/2026-11-16/professor_summary_zh-TW.md),
+[the PDF](reports/2026-11-16/professor_report_zh-TW.pdf),
+[dataset status](reports/2026-11-16/dataset_status.md), and
+[measured validation](reports/2026-11-16/validation_results.md).
+The [email draft](reports/2026-11-16/email_draft_zh-TW.md) has not been sent.
 
-```bash
-git clone https://github.com/jgw0915/AFS-RGMNB.git
-cd AFS-RGMNB
-python3.10 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+| Preserved multiclass count source | Samples | Classes | Observed full-matrix features |
+|---|---:|---:|---:|
+| 20Newsgroup | 18,828 | 20 | 83,415 |
+| Bacteria | 6,386 | 741 | 64,934 |
+| Fungi | 7,730 | 926 | 61,563 |
+
+These are verified **precomputed counts**, not newly extracted raw documents or
+DNA. All records/classes remain. Numeric gene labels have unverified biological
+rank; no Family/Genus task is established. Small classes and duplicate vectors
+require reviewed evaluation rules. Optional local MDR88 has 14,680 records and
+3 classes, excluding the seven-record fourth class upstream. No classifier
+accuracy is claimed by the count audit.
+
+## Install and check
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pip install -e . --no-deps
 python -m unittest discover -s tests -v
+python -m afs_rgmnb --help
+python tools/check_thesis_spec.py
 ```
 
-`requirements.txt`: NumPy 1.26.4, SciPy 1.11.4, scikit-learn 1.4.2 (compatible with Python 3.10). Automated tests run on GitHub Actions with Python 3.10; initial local development checks ran under Python 3.13 because Python 3.10 was not installed in the execution environment.
+On Linux, use `source .venv/bin/activate`. The console command `afs-rgmnb` is
+installed with the package; `python -m afs_rgmnb` avoids PATH issues. Legacy
+`python feature_pipeline.py ...` and historical imports remain supported.
+The pinned requirements target Python 3.10 CI; reports record actual local
+Python/library versions separately.
 
-## Dataset inventory first (especially 蔡幸辰 archive)
+## Audit preserved senior counts
 
-Extract the ZIP **locally on your lab server**, not into the Git repo. Then inspect its files to determine the actual dataset names and schemas:
+The read-only archive is locally named `107-???/` (author ???). It is
+ignored as an entire directory. Do not execute legacy binaries or concatenate
+historical binary experiments. The audit discovers its actual internal paths:
 
-```bash
-mkdir -p "$HOME/thesis_data/tsai107"
-unzip '/path/to/107-林幸辰.zip' -d "$HOME/thesis_data/tsai107"
-python tools/preflight.py "$HOME/thesis_data/tsai107" --output "$HOME/thesis_data/tsai107_inventory.json"
+```powershell
+python scripts/validate_senior_datasets.py --archive '.\107-???' --output '.\outputs\2026-11-16\verified_run' --dataset all --export-matrices
+# Optional reduced MDR88 source, audited separately:
+python scripts/validate_senior_datasets.py --archive '.\107-???' --output '.\outputs\2026-11-16\optional_mdr88' --dataset mdr88
 ```
 
-`preflight.py` reads the directory recursively, reports file sizes, extensions, first FASTA header or table column names, and source code filenames, without copying raw datasets into the repo. `--sha256` additionally hashes entire files (slower).
+Outputs are sparse NPZ counts, NPY labels, archive identifier TSVs and JSON
+measurements/fingerprints. The exported columns retain declared source feature
+IDs, including zero columns. A fit-only observed-column mask is required before
+experiments. The DNA source-ID-to-sequence order is unknown; do not silently map
+these saved columns to the new extractor's lexical ACGT order.
 
-## DNA: overlapping nucleotide 8-mer counts (MNB-ready)
+## Extract from independently supplied raw inputs
 
-Supports gzipped/multiline FASTA and either:
-- `--dna-format silva`: `>sequence_ID Domain;Phylum;Class;Order;Family;Genus` (the older 陳泓宇 FASTA format works here too).
-- `--dna-format dada2`: taxonomy is the full `>` header, e.g. `>Bacteria;Phylum;Class;Order;Family;Genus`.
-- `--dna-format metadata`: FASTA identifiers paired with `id`, `family`, `genus` columns in a TSV/CSV metadata file. Use an explicit mapping if ranks are irregular.
-
-Use **only the six-rank schema** if the header really contains Domain/Phylum/Class/Order/Family/Genus. For a separately documented seven-rank schema, select `--rank-schema seven`. Never infer biological ranks by arbitrary token position when intermediary ranks are inconsistent.
-
-```bash
-# Inspect label distribution without extracting the matrix
-python feature_pipeline.py inspect --kind dna \
-  --input /lab/datasets/Bacteria_2035_Nonsingleton.fasta \
-  --dna-format silva --domain Bacteria --rank-schema six --rank genus \
-  --max-classes 25 --samples-per-class 20 --min-class-size 20 \
-  --output /lab/results/inspect_bacteria
-
-# Extract a balanced, 500-sample, 25-genus test subset
-python feature_pipeline.py extract --kind dna \
-  --input /lab/datasets/Bacteria_2035_Nonsingleton.fasta \
-  --dna-format silva --domain Bacteria --rank-schema six --rank genus \
-  --k 8 --max-classes 25 --samples-per-class 20 --min-class-size 20 \
-  --folds 5 --min-features 5000 --min-total-samples 500 --baseline \
-  --output /lab/results/bacteria_genus_25x20
-
-# For Fungi
-python feature_pipeline.py extract --kind dna \
-  --input /lab/datasets/Fungi_4954_Nonsingleton.fasta \
-  --dna-format silva --domain Fungi --rank-schema six --rank family \
-  --max-classes 20 --samples-per-class 25 --min-class-size 25 \
-  --output /lab/results/fungi_family_20x25
+```powershell
+python -m afs_rgmnb extract --kind text --input 'D:\research\documents.csv' --output '.\outputs\raw_documents' --sampling-mode all --min-classes 2 --document-preprocessing senior --stopword-file 'D:\research\stopwords.txt' --porter-mode original --encoding utf-8
 ```
 
-A DNA 8-mer has `4^8 = 65,536` **possible** values. Actual features `d` are the 8-mers **observed in each Dfit fold**, checked against `--min-features 5000`. The output value `X[i,j]` is a nonnegative integer occurrence count, **not** a binary presence indicator, TF-IDF, or length-normalized frequency. Overlapping windows advance one base; ambiguity (`N`, `R`, etc.) resets a window. `U` is treated as `T`; reverse complements are **not** merged. This is correct for RNA gene sequences such as 16S; genetic-code translation is intentionally excluded.
+CSV requires `id,label,text`; JSONL and `documents/<class>/*.txt` are supported
+with `--text-format`. `--encoding` and `--encoding-errors strict|replace` are
+explicit. The senior-style option lowercases, tokenizes punctuation/space while
+preserving hyphenated words, removes an explicit stoplist, then applies the named
+Porter variant. `--stopwords english` is an explicitly named alternative list,
+not the recovered historical list. `--remove-headers` is an optional RFC822
+policy; default legacy tokenizer remains available. Counts stay integer; no
+TF-IDF, binary conversion or length normalization is applied.
 
-## Documents: word occurrence counts
+DNA accepts gzipped/multiline FASTA with `--dna-format silva|dada2|metadata`.
+Select a verified `--rank family|genus`, `--rank-schema six|seven`, and domain.
+Eight-base windows overlap with stride one; repeated occurrences count repeatedly.
+Ambiguous symbols break windows, U maps to T, reverse complements remain separate.
+These conventions do not imply the original archived extraction was reproduced.
 
-```bash
-# CSV with label,text[,id] columns
-python feature_pipeline.py extract --kind text \
-  --input /lab/datasets/documents.csv --text-format csv \
-  --label-col label --text-col text --id-col id \
-  --max-classes 5 --samples-per-class 100 --min-class-size 100 \
-  --min-features 5000 --min-total-samples 500 \
-  --output /lab/results/documents --baseline
+`--sampling-mode all` keeps the natural distribution and reports duplicates;
+`--duplicate-policy drop` explicitly removes conflicting content and collapses
+same-label duplicates. Balanced mode is retained for controlled tests and warns
+that proportions change. `--max-classes 0` controls only the class cap; it does not
+cancel per-class sampling in balanced mode. Explicit include/exclude and size
+filters are recorded. No rare class is silently removed to make splitting work.
 
-# TSV: add --delimiter $'\t'
-# JSON Lines: --text-format jsonl --label-col topic --text-col body
-# Folder layout: documents/<label>/*.txt: use --text-format dir
-```
+Outer folds are stratified; each train portion is split into fit/search.
+Vocabulary is learned on fit only, and search/test cannot add columns. The CLI
+checks every actual split for class coverage before matrix export. Source
+snapshots contain raw records, so output directories must remain ignored.
+Duplicate/group independence still needs review before performance claims.
 
-`CountVectorizer` lowercases text, strips accents, and uses Unicode word tokens of length >=2. Optional `--stopwords english`; default: **none**. It does **not** perform Chinese word segmentation; presegment Chinese documents before passing them in. The word vocabulary is **fitted exclusively on Dfit**. No TF-IDF or normalization is applied; use raw counts to match MNB.
+## Package and scientific traceability
 
-## Outputs
+- `data/`: readers, explicit preprocessing/taxonomy and senior count adapters.
+- `features/`: independent DNA/document extraction and legacy fold export.
+- `methods/`: verified Chapter 3 components as they are implemented.
+- `experiments/`: reserved namespace for the forthcoming benchmark runner.
+- `utils/`, `cli.py`: I/O and reusable command interface.
 
-```text
-<output>/
-    manifest.json              # exact CLI parameters and fold summaries
-    class_index.tsv
-    selected_samples.tsv.gz   # input snapshot: contains raw sample text/sequences!
-    fold_01/ ... fold_05/
-       X_fit.npz, X_search.npz, X_test.npz   # SciPy CSR sparse int32
-       y_fit.npy, y_search.npy, y_test.npy   # class label IDs
-       ids_fit.tsv, ids_search.tsv, ids_test.tsv
-       features.tsv           # dimension -> 8-mer / word
-       summary.json           # actual dimensions, counts, optional sanity-check MNB metrics
-```
+See [AGENTS.md](AGENTS.md), [ROADMAP.md](ROADMAP.md),
+[Chapter 3 mapping](docs/methodology/chapter3_implementation_mapping.md),
+[open scientific questions](docs/methodology/open_questions.md), and
+[senior method comparison](docs/references/senior_feature_extraction_comparison.md).
+The fingerprint checker reads reviewed sources without editing either project.
+Older `docs/VALIDATION.md` and `docs/SENIOR_METHODS.md` retain historical context;
+the dated report and current comparison supersede their archive-availability claims.
 
-`Dtest` is held out; `Dsearch` is an internal part of the outer training fold. Model feature scoring and PSO must not use `Dtest`. The vocabulary is fitted only on `Dfit` as an even stricter separation. Outer split: stratified 5-fold CV; inner split: stratified Dfit/Dsearch. **Stratification preserves label proportions, not sequence independence**. Exact duplicate handling is implemented for sampled records, but near-identical biological sequences/homologous groups are not removed and may cause overly optimistic metrics. A group/similarity-aware test is still required before scientific conclusions.
-
-Load an output fold:
-
-```python
-import numpy as np
-from scipy.sparse import load_npz
-fold = '/lab/results/bacteria_genus_25x20/fold_01'
-X_fit = load_npz(fold + '/X_fit.npz')
-y_fit = np.load(fold + '/y_fit.npy')
-print(X_fit.shape, X_fit.dtype, X_fit.nnz)
-```
-
-## Smoke tests (not biological evidence)
-
-```bash
-python examples/make_synthetic_data.py --out /tmp/afsr_demo
-python feature_pipeline.py extract --kind dna \
-  --input /tmp/afsr_demo/synthetic_dada2.fa.gz --dna-format dada2 \
-  --samples-per-class 100 --max-classes 5 --output /tmp/afsr_dna --baseline
-python feature_pipeline.py extract --kind text \
-  --input /tmp/afsr_demo/synthetic_documents.csv \
-  --samples-per-class 100 --max-classes 5 --output /tmp/afsr_text --baseline
-```
-
-**Data safety:** The repository is public. `.gitignore` excludes datasets, `.npz`, `.npy`, ZIP archives, generated validation output. Do not commit datasets, original senior programs, or privately shared material without explicit reuse permission. Prefer `README`/manifests with source URLs and checksums; see `docs/STORAGE.md`.
+No raw datasets, senior programs, thesis source or heavy outputs belong in Git.
+Review staged paths and `git check-ignore -v` before local commits. Never push,
+merge, or upload private research materials without user authorization.

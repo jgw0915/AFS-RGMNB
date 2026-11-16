@@ -11,7 +11,9 @@ separate stages.
 
 The local extracted folder is `107-林幸辰/`, wholly ignored by Git. It contains
 19,866 files, 7,529,422,472 bytes, including original source and derived data;
-there is **no PDF, DOC/DOCX, FASTA, or raw document corpus in this extraction**.
+there is **no PDF, DOC/DOCX or FASTA in this extraction**. Raw priority 20News
+documents and gene sequences were not recovered. An additional MDR88 labelled
+text file exists; see the availability correction below.
 It is not safe to infer the author from the folder name. The
 [NCKU thesis record](https://thesis.lib.ncku.edu.tw/thesis/detail/ca966c2629f96e2ac727fedc7641cc9d/)
 identifies **蔡幸辰 (Tsai, Hsing-Chen), 2019, academic year 107**, advised by
@@ -128,6 +130,17 @@ does not silently remove/merge classes or equalize the natural distribution.
 A reviewed rare-class/grouping policy and raw biological inputs are required
 before thesis performance experiments. The 2026-11-16 local Python audit verified the three original precomputed count sources: **18,828/6,386/7,730 samples**, **20/741/926 classes**, and **83,415/64,934/61,563 observed full-matrix columns** for 20News/Bacteria/Fungi. The measured values and scientific limitations appear in
 [validation_results.md](../../reports/2026-11-16/validation_results.md).
+
+## MDR88 availability correction
+
+`Program/00_前置處理/text/MDR88/` contains `MDR88.txt`, `MDR88Output.txt` and
+`MDR88TotalWord.txt`. The text has 14,680 labelled lines (537 DEATH, 6,224
+MALFUNCTION, 7,919 SERIOUS INJURY). The count source also has 14,680 records,
+3 classes and 12,331 observed columns out of 12,511. The seven `other` records
+reported in the original four-class thesis table are absent from both local
+input files. This is an upstream reduced dataset, not a new exclusion by this
+implementation. The text has non-ASCII bytes and needs an explicit encoding
+and row-alignment review before raw preprocessing. It remains optional.
 
 The historical 20News class-19 folder/title says 755, while the actual full
 multiclass source contains **775**. The loader preserves and reports the file
