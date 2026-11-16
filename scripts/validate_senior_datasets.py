@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import csv
 from datetime import datetime, timezone
-import ctypes
 import hashlib
 import json
 from pathlib import Path
@@ -27,29 +26,7 @@ from afs_rgmnb.data.senior_archive import (discover_archive_sources,
     fit_observed_columns, read_document_counts, read_gene_instances, summarize_counts)
 
 
-def peak_rss_bytes() -> int | None:
-    """Process lifetime peak working set, including imported/native libraries."""
-    if sys.platform == "win32":
-        class MemoryCounters(ctypes.Structure):
-            _fields_ = [("cb", ctypes.c_ulong), ("PageFaultCount", ctypes.c_ulong)] + [
-                (name, ctypes.c_size_t) for name in ("PeakWorkingSetSize", "WorkingSetSize",
-                "QuotaPeakPagedPoolUsage", "QuotaPagedPoolUsage", "QuotaPeakNonPagedPoolUsage",
-                "QuotaNonPagedPoolUsage", "PagefileUsage", "PeakPagefileUsage")]
-        counters = MemoryCounters()
-        counters.cb = ctypes.sizeof(counters)
-        handle = ctypes.windll.kernel32.GetCurrentProcess
-        handle.restype = ctypes.c_void_p
-        memory = ctypes.windll.psapi.GetProcessMemoryInfo
-        memory.argtypes = [ctypes.c_void_p, ctypes.POINTER(MemoryCounters), ctypes.c_ulong]
-        if memory(handle(), ctypes.byref(counters), counters.cb):
-            return counters.PeakWorkingSetSize
-        return None
-    try:
-        import resource
-        value = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        return int(value if sys.platform == "darwin" else value * 1024)
-    except ImportError:
-        return None
+from afs_rgmnb.utils.reproducibility import peak_rss_bytes
 
 
 def vocabulary_audit(dataset, seed: int) -> dict:

@@ -1,0 +1,17 @@
+{
+  "purpose": "Development smoke test only; not finalized thesis hyperparameters",
+  "dataset_identifier": "tsai2019_20news_preserved_multiclass_counts",
+  "source_fingerprint_sha256": "2f18b7b11c294dda1d716988f38a4c1184c0344c1eec73ad0f510d0a887b1528",
+  "declared_feature_dimensions": 83635,
+  "parameters": {
+    "n_groups": 3,
+    "candidates_per_group": 4,
+    "subspace_size": 128,
+    "alpha": 1.0,
+    "epsilon": 0.05,
+    "seed": 42,
+    "outer_folds": 5,
+    "search_fraction": 0.2,
+    "outer_fold_index": 0
+  }
+}
