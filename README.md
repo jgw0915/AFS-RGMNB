@@ -3,7 +3,8 @@
 A Python 3.10-compatible research framework for the NCKU master's thesis on
 randomly generated MNB ensembles for high-dimensional **multiclass** classification.
 The active sibling LaTeX Chapter 3 defines the algorithm. Implementation is
-incremental; full PSO/ensemble and final Chapter 4 experiments are not complete.
+incremental; random MNB initialization and PSO model search are implemented.
+Ensemble voting, the complete outer AFS loop and final Chapter 4 experiments remain pending.
 
 ## November 16 progress report
 
@@ -163,3 +164,29 @@ See [implementation status](reports/2026-11-16/implementation_status.md),
 Exact-vector grouping cannot recover raw documents or undo historical upstream
 preprocessing leakage. No random MNB initialization, PSO, voting, full AFS loop
 or formal Chapter4 classifier comparison is included in this milestone.
+
+## Random MNB and PSO milestone
+
+`methods/random_generation.py` implements the thesis's independent-uniform,
+block-normalized random priors and conditionals, with stable particle serialization.
+`methods/pso.py:optimize_mnb` searches each selected subspace using Dsearch accuracy,
+fixed inertia .9, synchronous histories, coordinate velocity redraw and whole-particle
+position reset. Exact position equality or the configured update limit stops it.
+The explicit Q07 position-map interpretation remains documented in the methodology.
+
+```powershell
+# Use the pinned requirements environment; output remains private/ignored.
+python scripts/run_pso.py --archive '.\107-林幸辰' --output '.\outputs\pso_smoke'
+```
+
+`configs/experiments/20news_pso_smoke.json` provides small development settings,
+not final thesis hyperparameters. The full 20News smoke run retains the verified
+pre-PSO split, initializes one fresh swarm per selected group, and returns three
+individual models. It evaluates no test accuracy and performs no ensemble vote.
+The saved histories, boundary counters and model arrays reproduce exactly in a
+second run. **93 tests pass locally** with pinned dependencies on Python 3.12;
+new-code remote Python 3.10 CI has not yet run for this local milestone.
+
+See [random initialization/PSO validation](reports/2026-11-17/random_mnb_pso_validation.md),
+[current checkpoint](reports/2026-11-17/implementation_status.md), and
+[gene experiment prerequisites](docs/experiments/gene_experiment_requirements.md).

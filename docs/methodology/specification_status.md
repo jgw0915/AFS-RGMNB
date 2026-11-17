@@ -48,8 +48,8 @@ Scientific omissions and explicit engineering choices are in
 | 3.2, `sec:method-extraction`, `sec:method-data-split` | `data/{readers,preprocessing,taxonomy,splitting}.py`, `features/{dna_kmer,document,vectorization}.py` | Modular count readers/extractors and split preflight verified; three real-source exports and report complete; see dated validation |
 | 3.3.1, `eq:method-md-estimates` through `eq:method-sampling-weights` | `methods/feature_scoring.py`, `methods/adaptive_sampling.py` | JMH and initial probabilities implemented with numerical tests; zero-score inputs fail explicitly (Q01) |
 | 3.3.2–3.3.4, `eq:method-sequential-sampling` through `eq:method-subspace-choice` | `methods/random_subspace.py`, `methods/mnb.py` | Sequential sampler, subspace MNB and first-best search-accuracy candidate selection implemented and tested |
-| 3.4.1, `eq:method-mnb-constraints`, `eq:method-mnb-initialization` | `methods/random_generation.py` | Independent normalized uniforms mapped; implementation planned |
-| 3.4.2, `eq:method-pso-particle-position` through `eq:method-vote` | `methods/pso.py`, `methods/ensemble.py` | Exact representation, fitness, scalar-rho update and fixed-G hard vote mapped; implementation planned |
+| 3.4.1, `eq:method-mnb-constraints`, `eq:method-mnb-initialization` | `methods/random_generation.py` | Independent normalized uniforms implemented; positive normalization and serialization tested |
+| 3.4.2, `eq:method-pso-particle-position` through `eq:method-vote` | `methods/pso.py`, `methods/ensemble.py` | Representation, fitness, fixed-inertia synchronous PSO and boundary/convergence rules implemented; hard vote (3.16) remains planned |
 | 3.5, `eq:method-inclusion` through `eq:method-weight-change` | `methods/adaptive_sampling.py`, `methods/ensemble.py` | Inclusion/threshold/normalization and L1 change implemented; consecutive stopping/full loop remain planned |
 | 3.6, `sec:method-evaluation` | `experiments/{baselines,metrics,runner,reporting}.py` | Infrastructure planned; final experiment settings absent |
 
@@ -116,3 +116,11 @@ no thesis text/equation changed. Two clean-source real20News runs match under
 pinned dependencies. Formal CV accuracy comparisons, random initialization and
 PSO remain unimplemented. New-commit Python 3.10 CI is reported separately and
 must not be inferred from the prior7a93149 workflow.
+
+Random-MNB/PSO continuation (2026-11-17): initialization and model search are
+implemented, with93 local tests under pinned dependencies on Python3.12. The
+Q07 interpretation is explicit; the thesis remains unchanged at669245c9.
+Three separate best models are returned after independently initialized search;
+no ensemble vote or full outer loop is claimed. Real20News histories/parameters
+repeat exactly; the small search budget is a correctness smoke test, not a
+formal performance experiment. New remote CI is not inferred from old68-test runs.

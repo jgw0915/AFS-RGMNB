@@ -47,15 +47,29 @@
 - Active Chapter 3 does not define all-zero JMH normalization; main baseline's
   multiclass chi-square aggregation and final hyperparameter settings need review.
 
+## Random MNB and PSO milestone (November 17)
+
+- [x] Independent Uniform(0,1) initialization and block normalization, not empirical
+  warm starts or Dirichlet substitution; stable M(1+m) serialization.
+- [x] Exact synchronous PSO with fixed .9 inertia, scalar per-particle rhos,
+  boundary redraw/reset, historical-best retention and exact-position convergence.
+- [x] Q07 addition/strict pre-normalization (0,1) interpretation explicitly recorded.
+- [x] One fresh PSO per selected group; sparse search-only fitness; no test scoring.
+- [x] 25 new numerical/integration tests; all 93 local tests pass with pinned libraries.
+- [x] Three-swarm 20News smoke and identical repeat, saved-model Dsearch checks,
+  full histories, boundary counters, runtime/memory and source fingerprints.
+- [x] Gene taxonomy evidence and small-class protocol requirements documented;
+  full genes have 419/581 classes with fewer than five count-vector groups.
+- [ ] New-code remote Python 3.10 CI for this local milestone, when publishing is authorized.
+
 ## Subsequent implementation
 
-1. Separately scope normalized independent-uniform model generation and numerical
-   constraints against the unchanged active Chapter3. No initialization is implemented yet.
-2. Exact Chapter3 PSO and its constraints/stopping, in a subsequent milestone.
-3. Fixed-G voting, consecutive weight stability and final-iteration AFS loop.
-4. Formal outer CV/repeats; primary adapted
+1. Fixed-G voting, consecutive weight stability and the final-iteration AFS loop.
+2. Resolve gene taxonomy, independence groups and explicit class eligibility;
+   audit all-class fit/search/test coverage before biological performance claims.
+3. Formal outer CV/repeats; primary adapted
    Chi-square + Bagging-MNB comparator, optional standard classifiers and ablations.
-5. Versioned experiment records, timing/memory, per-class results, aggregate Chapter 4
+4. Versioned experiment records, timing/memory, per-class results, aggregate Chapter 4
    tables and figures. Final settings require scientific decisions, not guessed defaults.
 
 Feature extraction is not the final research objective. Development Dsearch

@@ -71,14 +71,14 @@ The implementation status section below is updated only after code verification.
 | 3.3.3, 118–132 | `eq:method-subspace-mnb-estimates` (3.7) | `theta_tilde_yj=(N_yj+alpha)/(sum_(k∈S)N_yk+m*alpha)`; empirical priors reused | `methods/mnb.py` | alpha>0, selected S | Per-class sum over selected m features=1; renormalize within subspace; sparse fit counts | Implemented in methods/mnb.py; hand calculation and equivalent sklearn checks pass |
 | 3.3.3, 135–143 | `eq:method-subspace-mnb-prediction` (3.8) | `argmax_y[log(pi_hat_y)+sum_(j∈S)x_j log(theta_tilde_yj)]` | `methods/mnb.py` | fixed class order | Sparse/dense agreement; all-zero subspace predicts maximal prior; no multinomial coefficient needed for argmax | Implemented sparse float64 scoring; zero-row and deterministic class-order ties tested |
 | 3.3.4, 145–157 | `eq:method-subspace-choice` (3.9) | For each group, choose candidate maximizing classification accuracy on search; emit G selected subspaces | `methods/random_subspace.py`, `methods/ensemble.py` | G,L,m | Exactly one per group; accuracy only on search; deterministic first-candidate tie policy | Implemented select_subspaces: one first-best search-accuracy candidate per group; synthetic and real evidence |
-| 3.4.1, 164–176 | `eq:method-mnb-constraints` (3.10) | Positive priors across M classes sum=1; each conditional row across m selected features sums=1 | `methods/mnb.py`, `methods/random_generation.py` | M≥2,m≥2 | Strict positivity and block sums, finite logs | Verified |
-| 3.4.1, 177–184 | `eq:method-mnb-initialization` (3.11) | Independent U,V∼Uniform(0,1); normalize U across classes and V within each class | `methods/random_generation.py` | RNG seed, M,m,N_p | Deterministic fixed seed; valid blocks; separate particle draws | Verified; NOT Dirichlet(1), not uniform on simplex; no fit-derived prior in random candidates |
-| 3.4.2, 196–206 | `eq:method-pso-particle-position` (3.12) | One position encodes pi and theta, M(1+m) coordinates; velocities initialize Uniform[-vmax,vmax] | `methods/random_generation.py`, `methods/pso.py` | N_p, vmax>0 | Pack/unpack round trip; class/feature ordering stable | Verified representation dimension; exact flat layout is routine implementation choice |
-| 3.4.2, 208 | unnumbered `F_S(z)=A(h_(S,z);D_search)` | Decode particle and compute search classification accuracy | `methods/pso.py`, `methods/mnb.py` | none | Fitness∈[0,1]; no fit/test substitution; same class order | Verified objective; macro-F1 must not replace it |
-| 3.4.2, 210–220 | `eq:method-pso-personal-best` (3.13) | Initialize pbest=z0; update pbest only on strict fitness improvement; ties retain prior | `methods/pso.py` | none | pbest score nondecreasing; equal score retains copied old position | Verified |
-| 3.4.2, 221–227 | `eq:method-pso-global-best` (3.14) | Maximize over personal best positions, retaining a historically best model | `methods/pso.py` | none | gbest score never decreases; copies survive particle reset | Verified; equal-global-score tie resolved by stable particle order |
-| 3.4.2, 229–244 | `eq:method-pso-velocity` (3.15) | `v_tilde=.9*v+c1*rho1*(pbest-z)+c2*rho2*(gbest-z)`; rho values are scalars per particle/iteration | `methods/pso.py` | fixed w=.9; c1,c2>0; vmax>0 | Hand-calculated update; synchronous use of previous whole-swarm histories; no decreasing inertia | Verified |
-| 3.4.2, 245–249 | unnumbered bounds, normalization and stopping prose | Redraw each out-of-range speed coordinate; add speed to position; invalid position resets whole particle and speed; otherwise block-normalize; evaluate all then update histories; stop identical positions or Imax updates | `methods/pso.py` | Imax≥1,vmax,N_p | No clipping/softmax; all coordinates valid after repair; histories preserved; score equality is insufficient to stop | Prose specified; `(0,1)` boundary/addition interpretation documented in open questions |
+| 3.4.1, 164–176 | `eq:method-mnb-constraints` (3.10) | Positive priors across M classes sum=1; each conditional row across m selected features sums=1 | `methods/mnb.py`, `methods/random_generation.py` | M≥2,m≥2 | Strict positivity and block sums, finite logs | Implemented validation and independent-uniform positive-block tests |
+| 3.4.1, 177–184 | `eq:method-mnb-initialization` (3.11) | Independent U,V∼Uniform(0,1); normalize U across classes and V within each class | `methods/random_generation.py` | RNG seed, M,m,N_p | Deterministic fixed seed; valid blocks; separate particle draws | Implemented generate_parameters; hand draws, open interval and seeded tests pass |
+| 3.4.2, 196–206 | `eq:method-pso-particle-position` (3.12) | One position encodes pi and theta, M(1+m) coordinates; velocities initialize Uniform[-vmax,vmax] | `methods/random_generation.py`, `methods/pso.py` | N_p, vmax>0 | Pack/unpack round trip; class/feature ordering stable | Implemented prior-first pack/unpack and uniform velocity initialization; shape/order tests pass |
+| 3.4.2, 208 | unnumbered `F_S(z)=A(h_(S,z);D_search)` | Decode particle and compute search classification accuracy | `methods/pso.py`, `methods/mnb.py` | none | Fitness∈[0,1]; no fit/test substitution; same class order | Implemented search-only sample accuracy with sparse selected-column scoring |
+| 3.4.2, 210–220 | `eq:method-pso-personal-best` (3.13) | Initialize pbest=z0; update pbest only on strict fitness improvement; ties retain prior | `methods/pso.py` | none | pbest score nondecreasing; equal score retains copied old position | Implemented strict improvement; tie and whole-reset history-retention tests pass |
+| 3.4.2, 221–227 | `eq:method-pso-global-best` (3.14) | Maximize over personal best positions, retaining a historically best model | `methods/pso.py` | none | gbest score never decreases; copies survive particle reset | Implemented first-particle global ties and historical-best model return |
+| 3.4.2, 229–244 | `eq:method-pso-velocity` (3.15) | `v_tilde=.9*v+c1*rho1*(pbest-z)+c2*rho2*(gbest-z)`; rho values are scalars per particle/iteration | `methods/pso.py` | fixed w=.9; c1,c2>0; vmax>0 | Hand-calculated update; synchronous use of previous whole-swarm histories; no decreasing inertia | Implemented fixed .9 synchronous scalar-rho update; hand/snapshot tests pass |
+| 3.4.2, 245–249 | unnumbered bounds, normalization and stopping prose | Redraw each out-of-range speed coordinate; add speed to position; invalid position resets whole particle and speed; otherwise block-normalize; evaluate all then update histories; stop identical positions or Imax updates | `methods/pso.py` | Imax≥1,vmax,N_p | No clipping/softmax; all coordinates valid after repair; histories preserved; score equality is insufficient to stop | Implemented Q07 position-map interpretation; exact convergence and redraw/reset tests pass |
 | 3.4.2, 251–265 | `sec:method-ensemble`, `eq:method-vote` (3.16) | Fresh PSO per selected group; G members; equal hard vote; fixed class-order tie | `methods/ensemble.py` | G,class order | Fixed G; no member carryover, probability averaging or model weighting | Verified; label is within 3.4.2, not a separate subsection |
 | 3.5, 270–278 | `eq:method-inclusion` (3.17) | `r_j=(1/G)sum_g 1[j∈S*_tg]` | `methods/adaptive_sampling.py` | G,m | r∈[0,1]; sum(r)=m for fixed-m subspaces; duplicates across groups counted | Implemented; fixed-size, unique-index and range checks |
 | 3.5, 279–290 | `eq:method-rase-threshold` (3.18) | retain r if `r>C0/log(d)`; else replace with `C0/d` | `methods/adaptive_sampling.py` | C0>0 | Equality uses replacement branch; all values positive; C0≥log(d) gives uniform after normalization | Implemented; strict threshold equality branch tested |
@@ -169,3 +169,31 @@ results. Test accuracy is absent. All27new tests plus prior 41 pass (68 total).
 Reports are under `reports/2026-11-16/{implementation_status,20news_split_audit,
 subspace_mnb_validation,pre_pso_integration}.md`; execution date is November 17.
 Subsequent random initialization/PSO/voting/full AFS loop remain out of scope.
+
+## Random-initialization and PSO continuation (November 17)
+
+Implemented `methods/random_generation.py` and `methods/pso.py` for equations
+(3.10)-(3.15) and the associated initialization, boundary, fitness and stopping
+prose. The fixed flat layout is priors first, then row-major class conditionals.
+Uniform-zero draws are redrawn; no empirical model enters random initialization.
+Initial velocities use Uniform[-vmax,vmax], inertia stays .9, two scalar rhos are
+shared across each particle's coordinates, and the whole swarm uses old histories
+before fitness/personal/global updates. Personal ties retain old positions;
+global ties choose the first particle. Invalid raw positions reset position AND
+velocity while retaining saved bests. Full matrix samples remain sparse.
+
+Q07 remains an explicit interpretation: add velocity to position, require raw
+coordinates in (0,1), then block-normalize. It is not silently promoted into an
+active numbered equation, and the read-only thesis was not amended. Exact
+position equality is checked at initialization and after updates; one particle
+therefore stops at initialization. Imax counts updates, excluding initialization.
+
+`experiments/pso_search.py` and `scripts/run_pso.py` run one fresh seeded swarm
+per selected subspace, in group order, on Dsearch only. Saved models preserve
+original feature/class mappings. The stage returns separate models, not the
+(3.16) vote or a complete outer AFS loop. Child seed allocation is a reproducible
+engineering convention. Config values are explicitly developmental, not final.
+
+Nine initialization,13 PSO and3 integrated tests augment the previous68 tests:
+93 local tests pass. A three-swarm 20News run and repeat match histories/models;
+Dtest is unscored. See `reports/2026-11-17/random_mnb_pso_validation.md`.
