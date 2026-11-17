@@ -1,11 +1,20 @@
 # Do not commit research source data, private laboratory archives, or generated features.
 /107-林幸辰/
+/reference/
 /artifacts/
 *.egg-info/
 /build/
 /dist/
 /raw/
-/data/
+# Track the data layout documentation only; all research data remain local.
+/data/*
+!/data/readme.md
+!/data/raw/
+!/data/extracted/
+/data/raw/*
+!/data/raw/.gitkeep
+/data/extracted/*
+!/data/extracted/.gitkeep
 /datasets/
 /outputs/
 /results/

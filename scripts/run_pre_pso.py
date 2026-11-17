@@ -12,6 +12,7 @@ import subprocess
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from afs_rgmnb.data.senior_archive import discover_archive_sources, read_document_counts
 from afs_rgmnb.experiments.pre_pso import PrePSOConfig, run_pre_pso, save_pre_pso
+from afs_rgmnb.utils.io import ensure_output_outside_references
 
 
 def main():
@@ -21,12 +22,11 @@ def main():
     parser.add_argument('--config', type=Path, default=Path(__file__).resolve().parents[1] / 'configs/experiments/20news_pre_pso_smoke.json')
     args = parser.parse_args()
     archive, output = args.archive.resolve(), args.output.resolve()
-    if output == archive or archive in output.parents:
-        parser.error('Output must be outside the read-only reference archive')
     repo = Path(__file__).resolve().parents[1]
-    thesis = repo.parent / 'Master-Thesis'
-    if output == thesis or thesis in output.parents:
-        parser.error('The thesis repository is read-only')
+    try:
+        output = ensure_output_outside_references(output, repo_root=repo, archive_root=archive)
+    except ValueError as exc:
+        parser.error(str(exc))
     if output.is_relative_to(repo):
         ignored = subprocess.run(['git', 'check-ignore', '-q', str(output / 'run.json')], cwd=repo)
         if ignored.returncode != 0:

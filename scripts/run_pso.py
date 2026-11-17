@@ -14,6 +14,7 @@ from afs_rgmnb.data.senior_archive import discover_archive_sources, read_documen
 from afs_rgmnb.experiments.pre_pso import PrePSOConfig
 from afs_rgmnb.experiments.pso_search import run_pso_pipeline, save_pso_pipeline
 from afs_rgmnb.methods.pso import PSOConfig
+from afs_rgmnb.utils.io import ensure_output_outside_references
 
 
 def main():
@@ -24,9 +25,10 @@ def main():
     args = parser.parse_args()
     archive, output = args.archive.resolve(), args.output.resolve()
     repo = Path(__file__).resolve().parents[1]
-    thesis = repo.parent / 'Master-Thesis'
-    if output == archive or archive in output.parents or output == thesis or thesis in output.parents:
-        parser.error('Reference archive and thesis are read-only; select a different output directory')
+    try:
+        output = ensure_output_outside_references(output, repo_root=repo, archive_root=archive)
+    except ValueError as exc:
+        parser.error(str(exc))
     if output.is_relative_to(repo):
         if subprocess.run(['git', 'check-ignore', '-q', str(output / 'run.json')], cwd=repo).returncode:
             parser.error('Research output must be in an ignored directory such as outputs/')

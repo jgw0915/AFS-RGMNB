@@ -24,6 +24,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from afs_rgmnb.data.senior_archive import (discover_archive_sources,
     fit_observed_columns, read_document_counts, read_gene_instances, summarize_counts)
+from afs_rgmnb.utils.io import ensure_output_outside_references
 
 
 from afs_rgmnb.utils.reproducibility import peak_rss_bytes
@@ -147,8 +148,16 @@ def main() -> None:
     parser.add_argument("--export-matrices", action="store_true")
     args = parser.parse_args()
     root, output = args.archive.resolve(), args.output.resolve()
-    if output == root or root in output.parents:
-        parser.error("Output must be outside the read-only reference archive")
+    repo = Path(__file__).resolve().parents[1]
+    try:
+        output = ensure_output_outside_references(output, repo_root=repo, archive_root=root)
+    except ValueError as exc:
+        parser.error(str(exc))
+    if output.is_relative_to(repo):
+        ignored = subprocess.run(
+            ["git", "check-ignore", "-q", str(output / "senior_validation_summary.json")], cwd=repo)
+        if ignored.returncode != 0:
+            parser.error("Research output must be in an ignored directory such as outputs/ or data/extracted/")
     output.mkdir(parents=True, exist_ok=True)
     if args.dataset == "all":
         reports = []
