@@ -12,7 +12,7 @@ Source implementation commit: **`fcb68df8979f2fb5eece6cbc7130c84524dc990a`**.
 | Real dataset execution | Complete 20News preserved-count load, all five group split audits, fit-only mapping and twelve modeled candidates in outer fold 0; two identical seeded runs |
 | Full AFS-RGMNB | Pending and outside this milestone: random parameter generation, PSO, voting and full outer iteration |
 | Formal classification performance | Not completed; reported candidate accuracy is Dsearch debugging evidence, no Dtest metric |
-| New-code Python 3.10 GitHub Actions | Pending authorized push and new-commit run; prior 41-test workflow verifies only old 7a93149 |
+| New-code Python 3.10 GitHub Actions | **Passed: 68 tests**, workflow run44007208985 on d3a44f84a9b3e63c087e2a76bed111a3d2f882c7 |
 
 ## Implemented APIs
 
@@ -31,10 +31,14 @@ Source implementation commit: **`fcb68df8979f2fb5eece6cbc7130c84524dc990a`**.
 Required editable installation and full unittest commands passed. Local Python 3.12
 current-library suite and isolated pinned requirements suite both pass all 68 tests;
 latest pinned run took 2.952 s. Pinned versions are NumPy 1.26.4, SciPy 1.11.4,
-sklearn 1.4.2, NLTK 3.9.2. This is not Python 3.10 execution. The existing GitHub
-[old-commit workflow](https://github.com/jgw0915/AFS-RGMNB/actions/runs/43898275583)
-passed; it is not claimed for this milestone. The new source remains ready for
-an approved branch push and workflow inspection.
+sklearn 1.4.2, NLTK 3.9.2. The local run is distinct from remote Python 3.10
+verification. Following explicit user approval on November 17, both milestone
+commits were pushed. The [new Python 3.10 workflow](https://github.com/jgw0915/AFS-RGMNB/actions/runs/44007208985)
+completed successfully for `d3a44f84a9b3e63c087e2a76bed111a3d2f882c7`.
+Job133785317546 verified checkout, Python setup, pinned requirements, editable
+installation and unittest execution. Its log records **68 tests in2.125s, OK**.
+This completes the outstanding Python 3.10 milestone check; the real-data smoke
+was executed locally under the separately recorded pinned Python 3.12 environment.
 
 `tools/check_thesis_spec.py` confirms all 12 reviewed files match thesis
 `669245c9be4073e682ae76d6b0bdf80cd724d89b`; thesis Git status is clean. Actual
@@ -52,9 +56,9 @@ recorded; the real run used a clean source commit and explicit file hashes.
 
 No data or scientific blocker prevents the requested pre-PSO flow. Remaining
 limitations are historical upstream preprocessing, unobserved raw/near duplicates
-and non-final development hyperparameters. Remote CI requires explicit new push
-approval under AGENTS.md; do not use the previous completed push authorization
-as permission to publish newer commits.
+and non-final development hyperparameters. The requested pre-PSO milestone is
+complete, including remote CI. This push was explicitly authorized by the user;
+future unrelated pushes remain subject to AGENTS.md.
 
 To continue after interruption: inspect Git first, retain commits/outputs, read
 this file, run the 68 tests and thesis checker, then inspect existing

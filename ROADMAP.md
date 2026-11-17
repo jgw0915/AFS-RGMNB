@@ -18,7 +18,7 @@
 
 - [x] Independently export/reload all three matrices; full distributions,
   runtime/memory, source fingerprints and two-page professor PDF visually verified.
-- [x] Review and checkpoint report/data changes locally; no push performed.
+- [x] Review and checkpoint report/data changes locally (historical checkpoint).
 
 ## Pre-PSO milestone (continued November 17)
 
@@ -32,7 +32,8 @@
 - [x] Full20News smoke and repeat with pinned dependencies:12 models,3 selected
   subspaces; test unscored; full logs/artifacts local and ignored.
 - [x] Four requested derived reports in `reports/2026-11-16/`; professor report unchanged.
-- [ ] New-commit Python 3.10 GitHub Actions, after explicit push approval.
+- [x] User-authorized branch push; Python 3.10 GitHub Actions passed all68tests
+  on d3a44f8 ([run44007208985](https://github.com/jgw0915/AFS-RGMNB/actions/runs/44007208985)).
 
 ## Scientific or source blocks
 
@@ -57,5 +58,6 @@
 5. Versioned experiment records, timing/memory, per-class results, aggregate Chapter 4
    tables and figures. Final settings require scientific decisions, not guessed defaults.
 
-Feature extraction is not the final research objective. No model accuracy or
-complete AFS-RGMNB implementation is claimed by the current data audit.
+Feature extraction is not the final research objective. Development Dsearch
+candidate accuracies are recorded; formal Dtest accuracy, full AFS-RGMNB and
+Chapter4 comparative results remain future work.

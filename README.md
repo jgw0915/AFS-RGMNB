@@ -152,7 +152,9 @@ part of the protocol: the earlier sklearn 1.9 run differs from pinned sklearn 1.
 New APIs: `group_aware_splits`, `prepare_feature_partitions`, `class_statistics`,
 `estimate_parameters`, `SubspaceMNB`, `select_subspaces` and `run_pre_pso`.
 **68 tests pass locally**, including all prior 41, under both current and pinned
-dependencies on Python 3.12. New-commit Python 3.10 CI status is tracked separately.
+dependencies on Python 3.12. The [Python 3.10 GitHub Actions run](https://github.com/jgw0915/AFS-RGMNB/actions/runs/44007208985)
+also passed all68tests for milestone commit d3a44f8. The real-data smoke and remote
+synthetic-test CI are separately recorded evidence.
 See [implementation status](reports/2026-11-16/implementation_status.md),
 [split audit](reports/2026-11-16/20news_split_audit.md),
 [MNB validation](reports/2026-11-16/subspace_mnb_validation.md) and
