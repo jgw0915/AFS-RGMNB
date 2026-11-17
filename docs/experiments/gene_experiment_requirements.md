@@ -1,5 +1,15 @@
 # Requirements for defensible multiclass gene experiments
 
+**New evidence, 2026-11-17:** the user added `reference/100-陳泓宇/` and
+`reference/104-林修弘/`. Both contain nucleotide inputs with archived taxonomy
+headers. See [Chen inventory](../references/senior_100_sequence_inventory.md)
+and [Lin inventory](../references/senior_104_sequence_inventory.md). The missing-
+sequence statements below describe the earlier **107 count archive alone**;
+they no longer describe every local reference. Current-taxonomy reconciliation,
+the explicit bridge to the 107 matrices, biological independence and rare-class
+protocol still need work. A separately audited functional DNA alternative is
+[UCI Splice](dataset_candidate_review.md); it is not a Family/Genus dataset.
+
 Reviewed 2026-11-17 against the preserved-count audit and the current split
 implementation. This is a dataset/protocol requirements record, not a completed
 gene classification experiment or approval of final settings. Original numeric
@@ -23,7 +33,7 @@ Both matrices have 65,536 declared columns. The identity `4**8 = 65,536` does
 not establish historical feature-ID-to-8-mer order, training-partition observed
 dimension or reproduction of raw 8-mer extraction.
 
-The gene count sources are the read-only archive's
+The gene count sources are the read-only `reference/107-林幸辰/` archive's
 `Program/00_前置處理/GenePreprocess/GenePreprocess/bin/Debug/bac_instance/`
 and corresponding `fun_instance/`. Their archive identifiers identify numeric
 class/sample count files. `ClassName_bac.txt` and `ClassName_fun.txt` supply

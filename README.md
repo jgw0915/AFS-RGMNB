@@ -47,14 +47,14 @@ Python/library versions separately.
 
 ## Audit preserved senior counts
 
-The read-only archive is locally named `107-林幸辰/` (author 蔡幸辰). It is
+The read-only archive is now `reference/107-林幸辰/` (author 蔡幸辰). It is
 ignored as an entire directory. Do not execute legacy binaries or concatenate
 historical binary experiments. The audit discovers its actual internal paths:
 
 ```powershell
-python scripts/validate_senior_datasets.py --archive '.\107-林幸辰' --output '.\outputs\2026-11-16\verified_run' --dataset all --export-matrices
+python scripts/validate_senior_datasets.py --archive '.\reference\107-林幸辰' --output '.\outputs\2026-11-16\verified_run' --dataset all --export-matrices
 # Optional reduced MDR88 source, audited separately:
-python scripts/validate_senior_datasets.py --archive '.\107-林幸辰' --output '.\outputs\2026-11-16\optional_mdr88' --dataset mdr88
+python scripts/validate_senior_datasets.py --archive '.\reference\107-林幸辰' --output '.\outputs\2026-11-16\optional_mdr88' --dataset mdr88
 ```
 
 Outputs are sparse NPZ counts, NPY labels, archive identifier TSVs and JSON
@@ -134,7 +134,7 @@ first-best **Dsearch accuracy** choice per group. Dtest is not scored.
 
 ```powershell
 # Activate an environment installed from requirements.txt first.
-python scripts/run_pre_pso.py --archive '.\107-林幸辰' --output '.\outputs\pre_pso_smoke'
+python scripts/run_pre_pso.py --archive '.\reference\107-林幸辰' --output '.\outputs\pre_pso_smoke'
 ```
 
 Configuration lives in `configs/experiments/20news_pre_pso_smoke.json`; G=3,L=4,
@@ -176,7 +176,7 @@ The explicit Q07 position-map interpretation remains documented in the methodolo
 
 ```powershell
 # Use the pinned requirements environment; output remains private/ignored.
-python scripts/run_pso.py --archive '.\107-林幸辰' --output '.\outputs\pso_smoke'
+python scripts/run_pso.py --archive '.\reference\107-林幸辰' --output '.\outputs\pso_smoke'
 ```
 
 `configs/experiments/20news_pso_smoke.json` provides small development settings,
@@ -190,3 +190,28 @@ new-code remote Python 3.10 CI has not yet run for this local milestone.
 See [random initialization/PSO validation](reports/2026-11-17/random_mnb_pso_validation.md),
 [current checkpoint](reports/2026-11-17/implementation_status.md), and
 [gene experiment prerequisites](docs/experiments/gene_experiment_requirements.md).
+
+## Local datasets and newly supplied references
+
+Use [data/readme.md](data/readme.md) for the storage convention: `data/raw/`
+holds inputs before feature extraction, and `data/extracted/` holds preserved
+or newly generated count representations. All data contents remain ignored;
+only the README and directory markers are tracked. Experiment/model outputs
+remain under `outputs/`. The new layout does not relocate reference originals.
+
+The whole `reference/` directory is ignored and read-only. The newly supplied
+`100-陳泓宇/` and `104-林修弘/` folders contain nucleotide sequences with archived
+taxonomy headers. The earlier raw-sequence limitation referred to the 107 folder
+alone. Recovery does not automatically resolve current ranks, rare classes,
+duplicate/accession grouping, or equivalence to the 107 matrices. See the
+[2012 sequence inventory](docs/references/senior_100_sequence_inventory.md) and
+[2016 sequence inventory](docs/references/senior_104_sequence_inventory.md).
+
+The [dataset candidate review](docs/experiments/dataset_candidate_review.md)
+records all 30 table entries in the Week 16 PDF, source checks and eligibility
+limits. A small official UCI Splice download is now stored locally in `data/`:
+3,190 records / 3 functional classes, 47,888 observed DNA 8-mers, and all five
+exact-count-vector-group split audits pass. This is a source/extraction/split audit, not
+classification performance or a Family/Genus task. All private/local artifacts
+and continuation instructions are in the
+[reference inspection checkpoint](reports/2026-11-17/reference_data_checkpoint.md).

@@ -1,5 +1,14 @@
 # Senior methods and the current count representation
 
+**November 17 update:** reference originals now live under ignored `reference/`.
+The newly supplied 100 and 104 folders were inspected directly and do contain
+nucleotide inputs. Their verified evidence, populations and limitations are in
+[senior_100_sequence_inventory.md](senior_100_sequence_inventory.md) and
+[senior_104_sequence_inventory.md](senior_104_sequence_inventory.md). The earlier
+absence-of-sequences statements below apply specifically to the 107 archive,
+now at `reference/107-林幸辰/`. New aggregate matches do not establish a row/feature
+bridge to its preserved counts or complete reproduction of any senior method.
+
 Inspected 2026-11-16. The current master's thesis, `../Master-Thesis/main.tex`
 → `Chapter/Third Chapter.tex`, §3.2.1 (`sec:method-extraction`), defines the
 implementation representation: overlapping DNA 8-mer **occurrence counts** and

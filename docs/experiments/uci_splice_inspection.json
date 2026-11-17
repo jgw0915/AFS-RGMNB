@@ -1,0 +1,157 @@
+{
+  "source_url": "https://archive.ics.uci.edu/static/public/69/molecular+biology+splice+junction+gene+sequences.zip",
+  "source_sha256": "3e7ce5dcbeec8c221f57dda495611b9d6ec9525551f445419f5c74cc38067e4e",
+  "zip_bytes": 167041,
+  "zip_members": [
+    "Index",
+    "splice.data",
+    "splice.data.Z",
+    "splice.names",
+    "splice.theory"
+  ],
+  "samples": 3190,
+  "classes": {
+    "EI": 767,
+    "IE": 768,
+    "N": 1655
+  },
+  "duplicate_instance_ids": 12,
+  "unique_sequence_strings": 3005,
+  "sequences_with_ambiguous_bases": 15,
+  "alphabet": {
+    "C": 50300,
+    "A": 44487,
+    "G": 50245,
+    "T": 46308,
+    "N": 56,
+    "D": 2,
+    "R": 1,
+    "S": 1
+  },
+  "sequence_lengths": {
+    "60": 3190
+  },
+  "representation": {
+    "k": 8,
+    "stride": 1,
+    "ambiguous": "break_window",
+    "uracil": "map_U_to_T",
+    "reverse_complement_merge": false
+  },
+  "shape": [
+    3190,
+    65536
+  ],
+  "observed_features": 47888,
+  "nnz": 168027,
+  "zero_rows": 0,
+  "count_min": 1,
+  "count_max": 13,
+  "sparsity": 0.9991962731818794,
+  "count_vector_groups": 3005,
+  "repeated_vector_groups": 125,
+  "repeated_vector_rows": 310,
+  "conflicting_vector_groups": 1,
+  "python": "3.12.7",
+  "numpy": "1.26.4",
+  "scipy": "1.11.4",
+  "sklearn": "1.4.2",
+  "test_evaluated": false,
+  "split_status": "passed_all_five_folds",
+  "folds": [
+    {
+      "fold": 0,
+      "fit": 2044,
+      "search": 510,
+      "test": 636,
+      "fit_observed_features": 40523,
+      "all_classes_present": true,
+      "sample_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      },
+      "group_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      }
+    },
+    {
+      "fold": 1,
+      "fit": 2039,
+      "search": 503,
+      "test": 648,
+      "fit_observed_features": 40890,
+      "all_classes_present": true,
+      "sample_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      },
+      "group_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      }
+    },
+    {
+      "fold": 2,
+      "fit": 2044,
+      "search": 510,
+      "test": 636,
+      "fit_observed_features": 40604,
+      "all_classes_present": true,
+      "sample_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      },
+      "group_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      }
+    },
+    {
+      "fold": 3,
+      "fit": 2054,
+      "search": 499,
+      "test": 637,
+      "fit_observed_features": 40795,
+      "all_classes_present": true,
+      "sample_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      },
+      "group_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      }
+    },
+    {
+      "fold": 4,
+      "fit": 2052,
+      "search": 505,
+      "test": 633,
+      "fit_observed_features": 40940,
+      "all_classes_present": true,
+      "sample_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      },
+      "group_overlaps": {
+        "fit_search": 0,
+        "fit_test": 0,
+        "search_test": 0
+      }
+    }
+  ],
+  "elapsed_seconds": 1.7398926001042128,
+  "inspection_date": "2026-11-17",
+  "audit_script_sha256": "33ea939e07c24c8a80bfc95225a03d219ece95ed3c1e09f19d1392af58e88613",
+  "scope": "Public derived aggregate source/extraction/split audit only; no identifiers, sequences, matrices or classification scores."
+}

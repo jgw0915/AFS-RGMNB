@@ -37,8 +37,11 @@
 
 ## Scientific or source blocks
 
-- Raw 20News text and gene sequences/accessions/lineages were not recovered.
-- Gene class codes/names do not establish a consistent Family or Genus target.
+- Raw 20News text was not recovered in the 107 archive. New 100/104 nucleotide
+  sources and archived lineages are now inspected; current rank reconciliation,
+  biological grouping and the bridge to 107 count rows/features remain unresolved.
+- The 107 gene class codes/names alone do not establish a consistent Family or
+  Genus target. New headers require explicit schema and unresolved-label handling.
 - Classes with two records cannot be present in fit/search/test simultaneously;
   full gene fivefold experiments need a reviewed target/eligibility protocol.
 - Exact identical vectors now remain group-disjoint without label repair;
@@ -75,3 +78,21 @@
 Feature extraction is not the final research objective. Development Dsearch
 candidate accuracies are recorded; formal Dtest accuracy, full AFS-RGMNB and
 Chapter4 comparative results remain future work.
+
+## Reference and data-storage inspection (November 17)
+
+- [x] Protect the moved `reference/` tree and inspect both added senior folders
+  read-only; recover nucleotide sources, archived ranks and historical filtering.
+- [x] Audit unique FASTA/text populations, IDs, ambiguity, duplicates, full-source
+  8-mer inventories and limits of current grouped allocation.
+- [x] Read/render all four Week 16 PDF pages; list all 30 dataset table entries,
+  distinguish binary/TF-IDF variants and check primary sources for the shortlist.
+- [x] Create protected `data/raw/`, `data/extracted/` and tracked storage README.
+- [x] Download official small UCI Splice source and audit integer DNA 8-mers:
+  3,190 rows / 3 classes / 47,888 full-source observed features; all five current
+  exact-count-vector-group-disjoint split plans pass without dropping rows/classes;
+  source-ID/biological grouping still needs review; no model run.
+- [ ] Review raw gene labels/accession joins and a defensible grouping/allocation
+  protocol; sequence recovery does not by itself make rare-class splits feasible.
+- [ ] Acquire and audit selected raw document candidates (20News, BBC, AG News)
+  with Dfit-only vocabulary; source-page verification is not local validation.
