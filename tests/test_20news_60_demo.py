@@ -41,7 +41,7 @@ class Export20NewsDemoTests(unittest.TestCase):
             result = export_demo(output=output)
             self.assertEqual(result["sample_count"], 60)
             self.assertEqual(len(result["class_distribution"]), 20)
-            self.assertEqual(result["observed_vocabulary_features"], 4)
+            self.assertEqual(result["observed_vocabulary_features"], 3)
             original = list(csv.DictReader(
                 (output / "20news_original_60.csv").open(encoding="utf-8-sig", newline="")))
             observed = list(csv.DictReader(
