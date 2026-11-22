@@ -1,0 +1,4 @@
+﻿資料集,領域,採用版本,樣本數（來源報告）,特徵數（來源報告）,類別數,特徵原始型態,適用性,注意事項,資料來源
+Reuters R8,文件分類,Cardoso-Cachopo 單標籤預處理版,7674,17387,8,預處理字詞；以 CountVectorizer 轉為整數詞頻,優先,類別數差異大；其中最少類別約51筆；正式實驗需在 Dfit 重算詞彙量、保留原始類別分布,https://ana.cachopo.org/datasets-for-single-label-text-categorization
+WebKB（四類版）,文件分類,Cardoso-Cachopo 4-class 處理版,4199,7770,4,預處理字詞；以 CountVectorizer 轉為整數詞頻,優先,不是原始7類WebKB；正式實驗需在 Dfit 重算詞彙量；記錄資料版本與排除類別,https://ana.cachopo.org/datasets-for-single-label-text-categorization
+BBC News（Greene／DePaul 詞頻版）,文件分類,"2,225篇、5類、6,167詞項的指定處理版",2225,6167,5,非負整數文件–詞項出現次數；另有原始新聞文字,優先,"需核對6,167維對應檔案版本及訓練折觀察維度；BBC原文仍有著作權",https://github.com/derekgreene/bbc-datasets
