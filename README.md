@@ -190,7 +190,6 @@ new-code remote Python 3.10 CI has not yet run for this local milestone.
 See [random initialization/PSO validation](reports/2026-11-17/random_mnb_pso_validation.md),
 [current checkpoint](reports/2026-11-17/implementation_status.md), and
 [gene experiment prerequisites](docs/experiments/gene_experiment_requirements.md).
-
 ## Local datasets and newly supplied references
 
 Use [data/readme.md](data/readme.md) for the storage convention: `data/raw/`
@@ -215,3 +214,9 @@ exact-count-vector-group split audits pass. This is a source/extraction/split au
 classification performance or a Family/Genus task. All private/local artifacts
 and continuation instructions are in the
 [reference inspection checkpoint](reports/2026-11-17/reference_data_checkpoint.md).
+
+## 2026-11-23 advisor data-extraction demonstration
+
+The 60-message **raw-text → AFS-RGMNB word-count** demo is implemented in `scripts/export_20news_60_demo.py`; the exact PowerShell commands and limitations are recorded in [the 11/23 run guide](docs/experiments/2026-11-23_20news_demo.md). The [local Codex handoff](docs/experiments/2026-11-23_codex_handoff.md) includes checks and professor-delivery outputs. Three *unmeasured candidate* dataset versions (Reuters R8, WebKB 4-class, BBC News) are documented in [new_dataset_candidates.csv](reports/2026-11-23/new_dataset_candidates.csv).
+
+The script downloads public source messages when run locally; **no real 60-document CSV or observed demo dimensions are committed**. The data output must stay in ignored `outputs/`; the script and its offline synthetic tests are committed here.
