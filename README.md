@@ -2,9 +2,25 @@
 
 A Python 3.10-compatible research framework for the NCKU master's thesis on
 randomly generated MNB ensembles for high-dimensional **multiclass** classification.
-The active sibling LaTeX Chapter 3 defines the algorithm. Implementation is
-incremental; random MNB initialization and PSO model search are implemented.
-Ensemble voting, the complete outer AFS loop and final Chapter 4 experiments remain pending.
+The executable method follows the November 25 Chapter 3. Each fold finishes adaptive
+subspace selection, runs one independent PSO search on each final subspace, constructs
+one equal-vote ensemble and scores its held-out test partition.
+
+## Run the revised workflow
+
+After installing the package and pinned dependencies, run the fingerprinted
+20News development fold from the repository root.
+
+```powershell
+python scripts/run_revised_cv.py --archive './reference/107-林幸辰' --output outputs/revised-fold0
+```
+
+Use `--config PATH` for a recorded parameter set and `--all-folds` for complete
+K-fold evaluation. Each run needs its own output directory. The two-run development
+validation retained all 20 classes and scored 318 of 3,759 held-out records correctly.
+The primary Chi-square + Bagging-MNB comparison and formal Chapter 4 runs remain open.
+See the [configuration and output guide](docs/experiments/revised_workflow.md) and
+[validation report](reports/2026-11-25/revised_method_validation.md).
 
 ## November 16 progress report
 
@@ -102,7 +118,7 @@ Duplicate/group independence still needs review before performance claims.
 - `data/`: readers, explicit preprocessing/taxonomy and senior count adapters.
 - `features/`: independent DNA/document extraction and legacy fold export.
 - `methods/`: verified Chapter 3 components as they are implemented.
-- `experiments/`: reserved namespace for the forthcoming benchmark runner.
+- `experiments/`: adaptive CV runner and one-round development diagnostics.
 - `utils/`, `cli.py`: I/O and reusable command interface.
 
 See [AGENTS.md](AGENTS.md), [ROADMAP.md](ROADMAP.md),
@@ -125,7 +141,7 @@ No raw datasets, senior programs, thesis source or heavy outputs belong in Git.
 Review staged paths and `git check-ignore -v` before local commits. Never push,
 merge, or upload private research materials without user authorization.
 
-## Working pre-PSO milestone
+## Historical one-round pre-PSO diagnostic
 
 The duplicate-aware 20News flow now runs end to end:
 exact count-vector groups → outer/nested approximately stratified group splits →
@@ -165,7 +181,7 @@ Exact-vector grouping cannot recover raw documents or undo historical upstream
 preprocessing leakage. No random MNB initialization, PSO, voting, full AFS loop
 or formal Chapter4 classifier comparison is included in this milestone.
 
-## Random MNB and PSO milestone
+## Historical one-round random MNB and PSO diagnostic
 
 `methods/random_generation.py` implements the thesis's independent-uniform,
 block-normalized random priors and conditionals, with stable particle serialization.
@@ -188,7 +204,7 @@ second run. **93 tests pass locally** with pinned dependencies on Python 3.12;
 new-code remote Python 3.10 CI has not yet run for this local milestone.
 
 See [random initialization/PSO validation](reports/2026-11-17/random_mnb_pso_validation.md),
-[current checkpoint](reports/2026-11-17/implementation_status.md), and
+[November 17 checkpoint](reports/2026-11-17/implementation_status.md), and
 [gene experiment prerequisites](docs/experiments/gene_experiment_requirements.md).
 ## Local datasets and newly supplied references
 

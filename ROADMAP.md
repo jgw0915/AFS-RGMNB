@@ -65,19 +65,20 @@
   full genes have 419/581 classes with fewer than five count-vector groups.
 - [ ] New-code remote Python 3.10 CI for this local milestone, when publishing is authorized.
 
-## Subsequent implementation
+## November 25 revised workflow
 
-1. Fixed-G voting, consecutive weight stability and the final-iteration AFS loop.
-2. Resolve gene taxonomy, independence groups and explicit class eligibility;
-   audit all-class fit/search/test coverage before biological performance claims.
-3. Formal outer CV/repeats; primary adapted
-   Chi-square + Bagging-MNB comparator, optional standard classifiers and ablations.
-4. Versioned experiment records, timing/memory, per-class results, aggregate Chapter 4
-   tables and figures. Final settings require scientific decisions, not guessed defaults.
-
-Feature extraction is not the final research objective. Development Dsearch
-candidate accuracies are recorded; formal Dtest accuracy, full AFS-RGMNB and
-Chapter4 comparative results remain future work.
+- [x] Review revised Chapter 3, notation and Figure 3.1 against the compiled thesis.
+- [x] Finish adaptive search before random initialization, run G independent swarms
+  on the stopping round’s subspaces, construct one hard-vote model and score Dtest.
+- [x] Test stage order, fit/search/test isolation, ties, convergence/reset,
+  same-seed replay, serialization and full-fold aggregation.
+- [x] Run and repeat one preserved 20News development fold. Record the measured
+  workload, predictions and timings in the [validation report](reports/2026-11-25/revised_method_validation.md).
+- [ ] Compare the separately named timestamped PDF if supplied.
+- [ ] Review Q08 with the advisor before implementing the primary comparator.
+  Use common fold indices, count inputs and G members.
+- [ ] Agree on tuning, repeat seeds and rare-class eligibility before formal
+  cross-dataset accuracy/runtime comparisons and Chapter 4 tables.
 
 ## Reference and data-storage inspection (November 17)
 

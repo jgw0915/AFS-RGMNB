@@ -1,6 +1,6 @@
 # Chapter 3 implementation mapping
 
-Reviewed 2026-11-16 against thesis Git revision `669245c9be4073e682ae76d6b0bdf80cd724d89b`.
+Reviewed 2026-11-26 against thesis Git revision `059f00b643fd4e94ad0c8eb49b05ac2d9dd6be44`.
 Authoritative entry point: `../Master-Thesis/main.tex`. Its active order is
 `Chapter/First Chapter.tex`, `Chapter/Second Chapter.tex`, `Chapter/Third Chapter.tex`.
 Chapter 3 includes `Chapter/chapter3-notation-table.tex` and
@@ -8,7 +8,7 @@ Chapter 3 includes `Chapter/chapter3-notation-table.tex` and
 The standalone `notes/chapter3-notation.tex` is **not** included by `main.tex` and
 contains superseded designs. Labels below are stable references; rendered equation
 numbers (3.1–3.20) are derived from the active source order and should be rechecked
-after revisions. Line numbers refer to the reviewed source, not an older PDF.
+after revisions. Section numbers and stable LaTeX labels identify the source after edits.
 
 ## Scope and data contracts
 
@@ -22,14 +22,26 @@ states the split purposes but omits vocabulary-learning scope; earlier supportin
 notes alternate between `D_fit` and outer `D_train`. No test vocabulary learning
 is permitted. See `open_questions.md` for this distinction.
 
-The full flow is: split → learn vocabulary on fit → count features → calculate
-JMH once → initialize weights → generate `G × L` subspaces → estimate and compare
-fit-based MNB models on search → keep one subspace per group → run one fresh PSO
-per selected subspace → construct `G`-member hard-vote ensemble → update feature
-weights from selected subspaces → check consecutive weight stability/iteration
-limit → retain the **last completed ensemble** → evaluate test once. PSO never
-directly optimizes feature-sampling weights. There is no `D_select`, candidate
-acceptance threshold, ensemble accumulation, or best-outer-iteration selection.
+Within each fold, fit-only JMH scores determine the initial weights. One seeded
+sampling generator advances across rounds. Figure 3.1 has a single return edge.
+
+```mermaid
+flowchart TD
+    fit[Dfit counts] --> jmh[JMH and initial weights]
+    jmh --> draw[Draw G groups of L subspaces]
+    fit --> estimate[Fit candidate MNBs]
+    draw --> estimate
+    estimate --> select[Select one per group]
+    search[Dsearch] --> select
+    select --> update[Update q and check L1 change]
+    update --> stop{Consecutive stability or Tmax?}
+    stop -->|Continue with updated q| draw
+    stop -->|Final G subspaces| pso[Initialize and run G independent swarms]
+    search --> pso
+    pso --> ensemble[Construct H from historical bests]
+    ensemble --> evaluate[Predict and score]
+    test[Dtest] --> evaluate
+```
 
 ## Symbols and Python representations
 
@@ -53,147 +65,50 @@ acceptance threshold, ensemble accumulation, or best-outer-iteration selection.
 
 ## Equation and stage traceability
 
-Status at mapping creation: **specified / implementation planned**. The module
-paths are required interfaces, not assertions that tests have already passed.
-The implementation status section below is updated only after code verification.
-
-| Section / source line | Identifier (rendered number) | Mathematical meaning and I/O | Python component | Hyperparameters | Testable properties | Status / ambiguity |
+| Section | Identifier (rendered number) | Mathematical meaning and I/O | Python component | Hyperparameters | Testable properties | Status / ambiguity |
 |---|---|---|---|---|---|---|
-| 3.1, 7–24 | `sec:pso-framework`, `fig:chapter3-main-flow`, `tab:method-notation` | Full ordered flow; fit/search/test to final fixed-size ensemble and test metrics | `methods/ensemble.py`, `experiments/runner.py` | all method and split settings | Each outer iteration rebuilds G members; final ensemble is H_T; test is absent from fit API | Specified; figure simplifies the detailed prose (see below) |
-| 3.2.1, 33–42 | `sec:method-extraction` | Documents → word occurrence counts; DNA → overlapping length-8 windows with stride 1 → count matrix | `features/dna_kmer.py`, `features/document.py`, `features/vectorization.py` | DNA k=8 fixed canonically; document tokenizer/stopwords explicit | Repeated windows retained, no normalization/TF-IDF, nonnegative integers, stable columns | Count semantics verified; ambiguous-base, U/T, stopword/stemming details not specified in body |
-| 3.2.2, 44–49 | `sec:method-data-split` | Stratified K-fold test; each outer train is split into disjoint fit/search; only search scores candidates and PSO | `data/splitting.py`, `experiments/runner.py` | K≥2; fit/search ratio; seed | Disjoint indices; outer test covers each row once per repetition; all classes in fit/search; fit transformations do not see test | Implemented group-disjoint approximate stratification as explicit evaluation extension; all-class coverage/overlaps audited; fit-only mapping |
-| 3.3.1, 61–68 | `eq:method-md-estimates` (3.1) | `p_hat_yj=(N_yj+alpha)/(sum_k N_yk+d*alpha)`, `pi_hat_y=n_y/n_fit`; fit counts → class probabilities | `methods/feature_scoring.py`, `methods/mnb.py` | alpha>0 | Row sums=1; positive probabilities; empirical priors; occurrence totals (not presence counts) | Implemented for JMH and reusable sparse class statistics; occurrence and empirical-prior tests pass |
-| 3.3.1, 69–75 | `eq:method-md-complement` (3.2) | `p_bar_yj=sum_(y'≠y)[pi_hat_y'/(1-pi_hat_y)]p_hat_y'j` | `methods/feature_scoring.py` | none | Mixture excludes target class; weights sum=1; ≥2 represented classes | Implemented; class-frequency mixture tested against a hand calculation |
-| 3.3.1, 76–89 | `eq:method-jmh-score` (3.3) | `s_j=sum_y[p_hat*log(p_hat/p_bar)+(1-p_hat)*log((1-p_hat)/(1-p_bar))]`; probabilities → length-d scores | `methods/feature_scoring.py` | same alpha | s≥0 (floating roundoff considered); equal class feature probabilities give zero; two classes reduce to Jeffreys divergence | Implemented; occurrence-count, binary Jeffreys and multiclass tests pass |
-| 3.3.1, 91–98 | `eq:method-initial-sampling` (3.4) | `q_j=(1-epsilon)*s_j/sum_k s_k+epsilon/d` | `methods/adaptive_sampling.py` | 0<epsilon<1 | sums=1; q≥epsilon/d; larger score gives larger q | Implemented for positive score sum; all-zero case explicitly raises (Q01) |
-| 3.3.1, 99–103 | `eq:method-sampling-weights` (3.5) | invariant `q_j>0`, `sum_j q_j=1` | `methods/adaptive_sampling.py`, `methods/random_subspace.py` | none | Reject negative, nonfinite, zero-mass weights; all produced distributions valid | Implemented validation and numerical distribution tests |
-| 3.3.2, 105–116 | `eq:method-sequential-sampling` (3.6) | From remaining R, draw j with `q_j/sum_(k∈R)q_k`, remove j; repeat m times independently for each candidate | `methods/random_subspace.py` | fixed 2≤m≤d, G≥1, L≥1, RNG seed | Exactly m unique valid columns; sequential conditional probabilities; separate candidates may duplicate | Implemented and reused by GxL selector; independent duplicate sets allowed |
-| 3.3.3, 118–132 | `eq:method-subspace-mnb-estimates` (3.7) | `theta_tilde_yj=(N_yj+alpha)/(sum_(k∈S)N_yk+m*alpha)`; empirical priors reused | `methods/mnb.py` | alpha>0, selected S | Per-class sum over selected m features=1; renormalize within subspace; sparse fit counts | Implemented in methods/mnb.py; hand calculation and equivalent sklearn checks pass |
-| 3.3.3, 135–143 | `eq:method-subspace-mnb-prediction` (3.8) | `argmax_y[log(pi_hat_y)+sum_(j∈S)x_j log(theta_tilde_yj)]` | `methods/mnb.py` | fixed class order | Sparse/dense agreement; all-zero subspace predicts maximal prior; no multinomial coefficient needed for argmax | Implemented sparse float64 scoring; zero-row and deterministic class-order ties tested |
-| 3.3.4, 145–157 | `eq:method-subspace-choice` (3.9) | For each group, choose candidate maximizing classification accuracy on search; emit G selected subspaces | `methods/random_subspace.py`, `methods/ensemble.py` | G,L,m | Exactly one per group; accuracy only on search; deterministic first-candidate tie policy | Implemented select_subspaces: one first-best search-accuracy candidate per group; synthetic and real evidence |
-| 3.4.1, 164–176 | `eq:method-mnb-constraints` (3.10) | Positive priors across M classes sum=1; each conditional row across m selected features sums=1 | `methods/mnb.py`, `methods/random_generation.py` | M≥2,m≥2 | Strict positivity and block sums, finite logs | Implemented validation and independent-uniform positive-block tests |
-| 3.4.1, 177–184 | `eq:method-mnb-initialization` (3.11) | Independent U,V∼Uniform(0,1); normalize U across classes and V within each class | `methods/random_generation.py` | RNG seed, M,m,N_p | Deterministic fixed seed; valid blocks; separate particle draws | Implemented generate_parameters; hand draws, open interval and seeded tests pass |
-| 3.4.2, 196–206 | `eq:method-pso-particle-position` (3.12) | One position encodes pi and theta, M(1+m) coordinates; velocities initialize Uniform[-vmax,vmax] | `methods/random_generation.py`, `methods/pso.py` | N_p, vmax>0 | Pack/unpack round trip; class/feature ordering stable | Implemented prior-first pack/unpack and uniform velocity initialization; shape/order tests pass |
-| 3.4.2, 208 | unnumbered `F_S(z)=A(h_(S,z);D_search)` | Decode particle and compute search classification accuracy | `methods/pso.py`, `methods/mnb.py` | none | Fitness∈[0,1]; no fit/test substitution; same class order | Implemented search-only sample accuracy with sparse selected-column scoring |
-| 3.4.2, 210–220 | `eq:method-pso-personal-best` (3.13) | Initialize pbest=z0; update pbest only on strict fitness improvement; ties retain prior | `methods/pso.py` | none | pbest score nondecreasing; equal score retains copied old position | Implemented strict improvement; tie and whole-reset history-retention tests pass |
-| 3.4.2, 221–227 | `eq:method-pso-global-best` (3.14) | Maximize over personal best positions, retaining a historically best model | `methods/pso.py` | none | gbest score never decreases; copies survive particle reset | Implemented first-particle global ties and historical-best model return |
-| 3.4.2, 229–244 | `eq:method-pso-velocity` (3.15) | `v_tilde=.9*v+c1*rho1*(pbest-z)+c2*rho2*(gbest-z)`; rho values are scalars per particle/iteration | `methods/pso.py` | fixed w=.9; c1,c2>0; vmax>0 | Hand-calculated update; synchronous use of previous whole-swarm histories; no decreasing inertia | Implemented fixed .9 synchronous scalar-rho update; hand/snapshot tests pass |
-| 3.4.2, 245–249 | unnumbered bounds, normalization and stopping prose | Redraw each out-of-range speed coordinate; add speed to position; invalid position resets whole particle and speed; otherwise block-normalize; evaluate all then update histories; stop identical positions or Imax updates | `methods/pso.py` | Imax≥1,vmax,N_p | No clipping/softmax; all coordinates valid after repair; histories preserved; score equality is insufficient to stop | Implemented Q07 position-map interpretation; exact convergence and redraw/reset tests pass |
-| 3.4.2, 251–265 | `sec:method-ensemble`, `eq:method-vote` (3.16) | Fresh PSO per selected group; G members; equal hard vote; fixed class-order tie | `methods/ensemble.py` | G,class order | Fixed G; no member carryover, probability averaging or model weighting | Verified; label is within 3.4.2, not a separate subsection |
-| 3.5, 270–278 | `eq:method-inclusion` (3.17) | `r_j=(1/G)sum_g 1[j∈S*_tg]` | `methods/adaptive_sampling.py` | G,m | r∈[0,1]; sum(r)=m for fixed-m subspaces; duplicates across groups counted | Implemented; fixed-size, unique-index and range checks |
-| 3.5, 279–290 | `eq:method-rase-threshold` (3.18) | retain r if `r>C0/log(d)`; else replace with `C0/d` | `methods/adaptive_sampling.py` | C0>0 | Equality uses replacement branch; all values positive; C0≥log(d) gives uniform after normalization | Implemented; strict threshold equality branch tested |
-| 3.5, 291–297 | `eq:method-rase-weight-update` (3.19) | Normalize thresholded inclusion values to q_next | `methods/adaptive_sampling.py` | C0 | q_next positive and sums=1 | Implemented positive normalization; no old-weight mixing |
-| 3.5, 299–305 | `eq:method-weight-change` (3.20), unnumbered stop rule | Delta=L1(q_next−q); stop after Rq consecutive Delta≤delta_q or Tmax; reset counter after exceedance | `methods/adaptive_sampling.py`, `methods/ensemble.py` | 0<delta_q<2, Rq positive integer, Tmax≥Rq | Delta∈[0,2]; consecutive counter resets; limit and convergence logged distinctly; return last H_t | L1 function implemented; consecutive stability and outer loop still planned |
-| 3.6, 307–314 | `sec:method-evaluation` | K-fold test accuracy mean/std + runtime; main comparator fixed Chi-square features + bootstrap MNB + majority vote; common splits/G/count representation | `experiments/baselines.py`, `metrics.py`, `runner.py`, `reporting.py` | K,repeats,seeds,G, feature-count/smoothing grids | Same fold records across methods; fit-only scoring; search-only tuning; test-only final metrics | Framework specified; Chapter 4 final datasets/settings absent; baseline exact scoring details need declared policy |
+| 3.1 | `fig:chapter3-main-flow`, `tab:method-notation` | Fit/search build H, test evaluates H | `experiments/runner.py` | fold and method configuration | All T rounds finish before G searches and one vote construction | Implemented, event order tested |
+| 3.2.1 | `sec:method-extraction` | Documents → word occurrence counts; DNA → overlapping length-8 windows with stride 1 → count matrix | `features/dna_kmer.py`, `features/document.py`, `features/pipeline.py` | DNA k=8 fixed canonically; document tokenizer/stopwords explicit | Repeated windows retained, no normalization/TF-IDF, nonnegative integers, stable columns | Count semantics verified; ambiguous-base, U/T, stopword/stemming details not specified in body |
+| 3.2.2 | `sec:method-data-split` | Stratified K-fold test; each outer train is split into disjoint fit/search; only search scores candidates and PSO | `data/splitting.py`, `experiments/runner.py` | K≥2; fit/search ratio; seed | Disjoint indices; outer test covers each row once per repetition; all classes in fit/search; fit transformations do not see test | Implemented group-disjoint approximate stratification as explicit evaluation extension; all-class coverage/overlaps audited; fit-only mapping |
+| 3.3.1 | `eq:method-md-estimates` (3.1) | `p_hat_yj=(N_yj+alpha)/(sum_k N_yk+d*alpha)`, `pi_hat_y=n_y/n_fit`; fit counts → class probabilities | `methods/feature_scoring.py`, `methods/mnb.py` | alpha>0 | Row sums=1; positive probabilities; empirical priors; occurrence totals (not presence counts) | Implemented for JMH and reusable sparse class statistics; occurrence and empirical-prior tests pass |
+| 3.3.1 | `eq:method-md-complement` (3.2) | `p_bar_yj=sum_(y'≠y)[pi_hat_y'/(1-pi_hat_y)]p_hat_y'j` | `methods/feature_scoring.py` | none | Mixture excludes target class; weights sum=1; ≥2 represented classes | Implemented; class-frequency mixture tested against a hand calculation |
+| 3.3.1 | `eq:method-jmh-score` (3.3) | `s_j=sum_y[p_hat*log(p_hat/p_bar)+(1-p_hat)*log((1-p_hat)/(1-p_bar))]`; probabilities → length-d scores | `methods/feature_scoring.py` | same alpha | s≥0 (floating roundoff considered); equal class feature probabilities give zero; two classes reduce to Jeffreys divergence | Implemented; occurrence-count, binary Jeffreys and multiclass tests pass |
+| 3.3.1 | `eq:method-initial-sampling` (3.4) | `q_j=(1-epsilon)*s_j/sum_k s_k+epsilon/d` | `methods/adaptive_sampling.py` | 0<epsilon<1 | sums=1; q≥epsilon/d; larger score gives larger q | Implemented for positive score sum; all-zero case explicitly raises (Q01) |
+| 3.3.1 | `eq:method-sampling-weights` (3.5) | invariant `q_j>0`, `sum_j q_j=1` | `methods/adaptive_sampling.py`, `methods/random_subspace.py` | none | Reject negative, nonfinite, zero-mass weights; all produced distributions valid | Implemented validation and numerical distribution tests |
+| 3.3.2 | `eq:method-sequential-sampling` (3.6) | From remaining R, draw j with `q_j/sum_(k∈R)q_k`, remove j; repeat m times independently for each candidate | `methods/random_subspace.py` | fixed 2≤m≤d, G≥1, L≥1, RNG seed | Exactly m unique valid columns; sequential conditional probabilities; separate candidates may duplicate | Implemented and reused by GxL selector; independent duplicate sets allowed |
+| 3.3.3 | `eq:method-subspace-mnb-estimates` (3.7) | `theta_tilde_yj=(N_yj+alpha)/(sum_(k∈S)N_yk+m*alpha)`; empirical priors reused | `methods/mnb.py` | alpha>0, selected S | Per-class sum over selected m features=1; renormalize within subspace; sparse fit counts | Implemented in methods/mnb.py; hand calculation and equivalent sklearn checks pass |
+| 3.3.3 | `eq:method-subspace-mnb-prediction` (3.8) | `argmax_y[log(pi_hat_y)+sum_(j∈S)x_j log(theta_tilde_yj)]` | `methods/mnb.py` | fixed class order | Sparse/dense agreement; all-zero subspace predicts maximal prior; no multinomial coefficient needed for argmax | Implemented sparse float64 scoring; zero-row and deterministic class-order ties tested |
+| 3.3.4 | `eq:method-subspace-choice` (3.9) | For each group, choose candidate maximizing classification accuracy on search; emit G selected subspaces | `methods/random_subspace.py` | G,L,m | Exactly one per group; accuracy only on search; deterministic first-candidate tie policy | Implemented select_round: one first-best search-accuracy candidate per group; synthetic and real evidence |
+| 3.3.5 | `eq:method-inclusion` (3.10) | `r_j=(1/G)sum_g 1[j∈S*_tg]` | `methods/adaptive_sampling.py` | G,m | r∈[0,1]; sum(r)=m for fixed-m subspaces; duplicates across groups counted | Implemented; fixed-size, unique-index and range checks |
+| 3.3.5 | `eq:method-rase-threshold` (3.11) | retain r if `r>C0/log(d)`; else replace with `C0/d` | `methods/adaptive_sampling.py` | C0>0 | Equality uses replacement branch; all values positive; C0≥log(d) gives uniform after normalization | Implemented; strict threshold equality branch tested |
+| 3.3.5 | `eq:method-rase-weight-update` (3.12) | Normalize thresholded inclusion values to q_next | `methods/adaptive_sampling.py` | C0 | q_next positive and sums=1 | Implemented positive normalization; no old-weight mixing |
+| 3.3.5 | `eq:method-weight-change` (3.13), unnumbered stop rule | Delta=L1(q_next−q); stop after Rq consecutive Delta≤delta_q or Tmax; reset counter after exceedance | `methods/adaptive_sampling.py`, `methods/adaptive_search.py` | 0<delta_q<2, Rq positive integer, Tmax≥Rq | Delta∈[0,2]; consecutive counter resets; limit and convergence logged distinctly; return exactly the stopping round’s G subspaces | Implemented; inclusive tolerance, reset and iteration cap tested |
+| 3.4.1 | `eq:method-mnb-constraints` (3.14) | Positive priors across M classes sum=1; each conditional row across m selected features sums=1 | `methods/mnb.py`, `methods/random_generation.py` | M≥2,m≥2 | Strict positivity and block sums, finite logs | Implemented validation and independent-uniform positive-block tests |
+| 3.4.1 | `eq:method-mnb-initialization` (3.15) | Independent U,V∼Uniform(0,1); normalize U across classes and V within each class | `methods/random_generation.py` | RNG seed, M,m,N_p | Deterministic fixed seed; valid blocks; separate particle draws | Implemented generate_parameters; hand draws, open interval and seeded tests pass |
+| 3.4.2 | `eq:method-pso-particle-position` (3.16) | One position encodes pi and theta, M(1+m) coordinates; velocities initialize Uniform[-vmax,vmax] | `methods/random_generation.py`, `methods/pso.py` | N_p, vmax>0 | Pack/unpack round trip; class/feature ordering stable | Implemented prior-first pack/unpack and uniform velocity initialization; shape/order tests pass |
+| 3.4.2 | unnumbered `F_S(z)=A(h_(S,z);D_search)` | Decode particle and compute search classification accuracy | `methods/pso.py`, `methods/mnb.py` | none | Fitness∈[0,1]; no fit/test substitution; same class order | Implemented search-only sample accuracy with sparse selected-column scoring |
+| 3.4.2 | `eq:method-pso-personal-best` (3.17) | Initialize pbest=z0; update pbest only on strict fitness improvement; ties retain prior | `methods/pso.py` | none | pbest score nondecreasing; equal score retains copied old position | Implemented strict improvement; tie and whole-reset history-retention tests pass |
+| 3.4.2 | `eq:method-pso-global-best` (3.18) | Maximize over personal best positions, retaining a historically best model | `methods/pso.py` | none | gbest score never decreases; copies survive particle reset | Implemented first-particle global ties and historical-best model return |
+| 3.4.2 | `eq:method-pso-velocity` (3.19) | `v_tilde=.9*v+c1*rho1*(pbest-z)+c2*rho2*(gbest-z)`; rho values are scalars per particle/iteration | `methods/pso.py` | fixed w=.9; c1,c2>0; vmax>0 | Hand-calculated update; synchronous use of previous whole-swarm histories; no decreasing inertia | Implemented fixed .9 synchronous scalar-rho update; hand/snapshot tests pass |
+| 3.4.2 | unnumbered bounds, normalization and stopping prose | Redraw each out-of-range speed coordinate; add speed to position; invalid position resets whole particle and speed; otherwise block-normalize; evaluate all then update histories; stop identical positions or Imax updates | `methods/pso.py` | Imax≥1,vmax,N_p | No clipping/softmax; all coordinates valid after repair; histories preserved; score equality is insufficient to stop | Implemented Q07 position-map interpretation; exact convergence and redraw/reset tests pass |
+| 3.4.2 | `sec:method-ensemble`, `eq:method-vote` (3.20) | Fresh PSO per selected group; G members; equal hard vote; fixed class-order tie | `methods/ensemble.py` | G,class order | Fixed G; no member carryover, probability averaging or model weighting | Verified; label is within 3.4.2, not a separate subsection |
+| 3.5 | `sec:method-evaluation` | Held-out fold accuracy, mean, SD and elapsed time | `experiments/runner.py` | K, split fraction, seed, fold list | Aggregate only complete K-fold runs; record construction and prediction separately | Revised method executable. Comparator policies remain open (Q08) |
 
-## Diagram and supporting-source audit
+## Stage boundary and experiment scope
 
-The included flowchart's editable XML contains the chain `preprocess → split →
-initial → subsets → mnb-groups → subspace-choice → pso → update → decision → eval`.
-Its no branch loops back to subspace sampling. A test arrow bypasses model building.
-The diagram shows search data entering subspace choice but does not separately
-draw its PSO-fitness dependency; the prose explicitly requires that dependency.
-Its diamond mentions convergence but omits the iteration-limit branch described
-in §3.5. These diagram simplifications must not remove either dependency in code.
-Only this one Chapter 3 figure is included by the current main source. Other PDFs
-(`chapter3-training-split`, `chapter3-rase-three-level`, `chapter3-overview`, flow
-options) and `_v1`/`_v2` draw.io files are historical supporting artifacts.
+Figure 3.1 sends the continuation branch from the stopping decision back to sampling.
+The stop branch leads to random MNB/PSO, ensemble construction and evaluation.
+Dsearch supplies candidate selection and swarm fitness. The test branch enters
+evaluation only. The source and notation use `S_b = S*_(T,b)` and a single `H`.
 
-Chapter 2 distinguishes JMH ranking from the proposed conversion to q; RaSE's
-selection/update ideas from this fixed-m MNB/search-accuracy design; random
-generation from bootstrap model fitting; and the older binary-NB PSO acceptance
-threshold mechanism from the present one-PSO-per-subspace rule. It lists MNB,
-Complement NB, logistic regression and SVM among relevant classifiers. Chapter 1
-asks about accuracy and full model-building cost in text/DNA high dimensions; it
-does not establish superior performance. Bibliography keys used directly in Ch3:
-`McCallumNigam1998`, `LiuWong2013`, `Vinje2015`, `Tang2016`, `Huang2023`,
-`Ho2024PSO`, `TianFeng2021`, `TianFeng2023`, `MadasuElango2020`.
+`search_subspaces` records the q digest, delta, consecutive count, candidate
+accuracies and winners for every round. It returns the indices selected using
+q^(T). q^(T+1) is retained for auditing the stop test. `fit_ensemble` sends
+only those indices, the class order and search partition to the PSO stage.
+`VotingEnsemble` uses feature indices relative to the common fit column map.
+The fold artifact persists the map to source columns.
 
-## Implementation status and review discipline
-
-The initial source audit preceded implementation. Verified APIs now available:
-
-- `jmh_scores(X_fit, y_fit, alpha=...)` implements (3.1)-(3.3) with sparse class aggregates.
-- `initial_probabilities`, `inclusion_proportions`, `update_probabilities`, `weight_change` implement (3.4), (3.17)-(3.20).
-- `sample_subspace(weights, size, rng=...)` implements (3.6) with exact remaining-weight renormalization.
-
-Nine numerical tests in `tests/test_chapter3_sampling.py` pass; the full suite has
-41 passing tests at that earlier milestone. The pre-PSO continuation now has68
-passing tests and adds SubspaceMNB, candidate selection and duplicate-aware data
-splits. All-zero JMH initialization still fails explicitly. This is not the full
-AFS-RGMNB classifier or a final comparative performance result.
-
-Remaining planned APIs (rows may also list existing helper names):
-
-| Module | Proposed callable contract |
-|---|---|
-| `methods/mnb.py` | `class_statistics`, `estimate_parameters`, `SubspaceMNB.predict` |
-| `methods/feature_scoring.py` | `jmh_scores`, `jmh_scores_from_statistics` |
-| `methods/adaptive_sampling.py` | `initial_probabilities`, `update_probabilities`, `weight_change` |
-| `methods/random_subspace.py` | `sample_subspace`, `select_subspaces` |
-| `methods/random_generation.py` | `generate_parameters`, `parameters_to_position`, `position_to_parameters` |
-| `methods/pso.py` | `PSOConfig`, `optimize_mnb` returning model plus stop/boundary/evaluation diagnostics |
-| `methods/ensemble.py` | `AFSConfig`, `AFSRGMNB.fit(X_fit,y_fit,X_search,y_search)`, `predict(X)`; fit has no test argument |
-
-The mapping was established before implementing the proposed algorithm. Update
-this paragraph and the per-component status after the implementation and tests
-are reviewed. Feature extraction already had 11 passing baseline tests before the
-refactor (Python 3.12.7); that alone is not a claim of method correctness or real
-dataset validation. Method correctness, data-validation evidence and experiment
-results must remain separate. `specification_status.md` records the reviewed
-source fingerprints; `open_questions.md` distinguishes missing scientific choices
-from explicit engineering conventions.
-
-## Verified pre-PSO continuation
-
-`data/splitting.py` groups canonical exact count vectors without labels, then
-uses outer and nested StratifiedGroupKFold. Nested fold allocation minimizes only
-search-size and fit/search class-proportion deviations from outer train; no model
-or test score is consulted. This is an explicitly requested evaluation extension
-to the active stratified-split specification, not a rewritten thesis equation.
-All rows and cross-label conflicts remain; realized deviations and all-class
-coverage are recorded. The Dfit-only mask preserves local/source feature IDs.
-
-`methods/mnb.py` implements `class_statistics`, `estimate_parameters`,
-`MNBParameters`, `class_log_scores` and `SubspaceMNB` for (3.7)-(3.8).
-`methods/random_subspace.py:select_subspaces` computes JMH once on fit, generates
-GxL fixed-m candidates, fits each only on fit, scores accuracy only on search and
-keeps the first maximum in each group per (3.9). It returns models, candidate
-statistics, selected subspaces, weights and timing in reusable dataclasses.
-
-`experiments/pre_pso.py` and `scripts/run_pre_pso.py` connect the stages with a
-fingerprinted source and development config. All five outer group splits are
-audited; twelve models are evaluated only in outer fold 0. Two pinned-library
-20News executions reproduce split arrays, feature mapping, JMH/q and candidate
-results. Test accuracy is absent. All27new tests plus prior 41 pass (68 total).
-Reports are under `reports/2026-11-16/{implementation_status,20news_split_audit,
-subspace_mnb_validation,pre_pso_integration}.md`; execution date is November 17.
-Subsequent random initialization/PSO/voting/full AFS loop remain out of scope.
-
-## Random-initialization and PSO continuation (November 17)
-
-Implemented `methods/random_generation.py` and `methods/pso.py` for equations
-(3.10)-(3.15) and the associated initialization, boundary, fitness and stopping
-prose. The fixed flat layout is priors first, then row-major class conditionals.
-Uniform-zero draws are redrawn; no empirical model enters random initialization.
-Initial velocities use Uniform[-vmax,vmax], inertia stays .9, two scalar rhos are
-shared across each particle's coordinates, and the whole swarm uses old histories
-before fitness/personal/global updates. Personal ties retain old positions;
-global ties choose the first particle. Invalid raw positions reset position AND
-velocity while retaining saved bests. Full matrix samples remain sparse.
-
-Q07 remains an explicit interpretation: add velocity to position, require raw
-coordinates in (0,1), then block-normalize. It is not silently promoted into an
-active numbered equation, and the read-only thesis was not amended. Exact
-position equality is checked at initialization and after updates; one particle
-therefore stops at initialization. Imax counts updates, excluding initialization.
-
-`experiments/pso_search.py` and `scripts/run_pso.py` run one fresh seeded swarm
-per selected subspace, in group order, on Dsearch only. Saved models preserve
-original feature/class mappings. The stage returns separate models, not the
-(3.16) vote or a complete outer AFS loop. Child seed allocation is a reproducible
-engineering convention. Config values are explicitly developmental, not final.
-
-Nine initialization,13 PSO and3 integrated tests augment the previous68 tests:
-93 local tests pass. A three-swarm 20News run and repeat match histories/models;
-Dtest is unscored. See `reports/2026-11-17/random_mnb_pso_validation.md`.
+Use the [migration](../../reports/2026-11-25/chapter3_workflow_migration.md) for the
+old-to-new numbering and the [validation](../../reports/2026-11-25/revised_method_validation.md)
+for the development measurement. The raw-text demonstration and the historical single-round
+model-search scripts have separate purposes.

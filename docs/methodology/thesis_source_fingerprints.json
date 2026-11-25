@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "review_date": "2026-11-16",
+  "review_date": "2026-11-26",
   "thesis_relative_path": "../Master-Thesis",
-  "thesis_git_revision": "669245c9be4073e682ae76d6b0bdf80cd724d89b",
+  "thesis_git_revision": "059f00b643fd4e94ad0c8eb49b05ac2d9dd6be44",
   "entry_point": "main.tex",
   "files": [
     {
@@ -29,7 +29,7 @@
     },
     {
       "path": "Chapter/Third Chapter.tex",
-      "sha256": "6ca2a045e42d0dd5ce8c0659d170240fbe5522e14a835fe69e24e42aee7db3f8",
+      "sha256": "435520b31e013ec6148b2ba7bb2f41a0ebdd436be3f1ea5e768aec7129c1a82b",
       "review_modules": [
         "methods/*",
         "data/splitting.py",
@@ -39,14 +39,14 @@
     },
     {
       "path": "Chapter/chapter3-notation-table.tex",
-      "sha256": "84911e904cb79df5831bfe5e21320be626e04bbf7a75c3946c975f10d6ad7afa",
+      "sha256": "1022133c0e4cc361fafdbaa777e0d9034f4151b1955da58649f1882481f7ab9f",
       "review_modules": [
         "methods/*; symbol and serialization contracts"
       ]
     },
     {
       "path": "figures/chapter3-method.drawio",
-      "sha256": "35d632470c07365b07b699a49c7f38454418773c5ea8f83797414a0e454759b3",
+      "sha256": "16c7b6d28ff88908b537b35e53abe529e6543460da5484cdd432cd81bc3235b9",
       "review_modules": [
         "methods/ensemble.py",
         "experiments/runner.py"
@@ -54,7 +54,7 @@
     },
     {
       "path": "figures/chapter3-method.pdf",
-      "sha256": "c0f8bdcb0010b5fb0a381360db47cb20001ab794345e99703ecce6abfbd16451",
+      "sha256": "10f348c1eb4ecbb2d9f95f310ec94f83dceeb373c15552871a89ada84a9ff057",
       "review_modules": [
         "methods/ensemble.py",
         "experiments/runner.py"
@@ -94,6 +94,13 @@
       "review_modules": [
         "experiments/baselines.py; supporting note only"
       ]
+    },
+    {
+      "path": "build/main.pdf",
+      "review_modules": [
+        "compiled Chapter 3 and Figure 3.1; confirm against active sources"
+      ],
+      "sha256": "2964127ba4afec1d34a9d62fac4bc0f303f2cc9d044ef2c678b02d19478e0e72"
     }
   ]
 }

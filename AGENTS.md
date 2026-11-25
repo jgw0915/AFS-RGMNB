@@ -28,6 +28,15 @@ the user's explicit approval. Local reviewed commits are authorized.
   `python tools/check_thesis_spec.py` before changing mathematical code. A changed
   source requires review, not automatic rewriting of the thesis or fingerprint.
 
+## Revised Chapter 3 execution order
+
+Use `scripts/run_revised_cv.py` for the November 25 method. Within each fold,
+initialize q once, finish the §3.3 subspace iterations, and pass the last
+round’s G feature sets to §3.4. Construct H once from the G independent PSO
+historical bests, then evaluate Dtest. Preserve the one-round diagnostics and
+dated reports for reproducibility. The development configuration exercises the
+algorithm; final comparator and experiment settings require scientific review.
+
 ## Dataset and reporting rules
 
 - Preserve original multiclass labels and natural sample counts. No automatic
