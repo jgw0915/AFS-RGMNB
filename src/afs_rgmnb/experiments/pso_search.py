@@ -21,7 +21,7 @@ class GroupModelSearch:
 
 
 def optimize_selected_subspaces(X_search, y_search, *, classes, selected_subspaces,
-                                n_features_in: int, config, seed: int) -> GroupModelSearch:
+                                n_features_in: int, config, seed: int, diagnostics=False) -> GroupModelSearch:
     """One fresh swarm per selected subspace, in group order, using search only.
 
     Child seeds come from SeedSequence(seed).spawn(G); each swarm initializes
@@ -44,7 +44,8 @@ def optimize_selected_subspaces(X_search, y_search, *, classes, selected_subspac
     for indices, child_seed in zip(subspaces, seeds):
         start = time.perf_counter()
         results.append(optimize_mnb(X_search, y_search, classes=classes, feature_indices=indices,
-                                   n_features_in=n_features_in, config=config, seed=child_seed))
+                                   n_features_in=n_features_in, config=config, seed=child_seed,
+                                   **({"diagnostics": True} if diagnostics else {})))
         elapsed.append(time.perf_counter() - start)
     return GroupModelSearch(tuple(results), seeds, tuple(elapsed))
 

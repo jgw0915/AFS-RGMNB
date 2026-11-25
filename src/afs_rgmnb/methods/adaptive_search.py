@@ -51,7 +51,7 @@ class AdaptiveResult:
 
 
 def search_subspaces(X_fit, y_fit, X_search, y_search, *, config: AdaptiveConfig,
-                     rng: np.random.Generator, class_order=None) -> AdaptiveResult:
+                     rng: np.random.Generator, class_order=None, retain_draws=False) -> AdaptiveResult:
     stats = class_statistics(X_fit, y_fit, class_order=class_order)
     scores = jmh_scores(X_fit, y_fit, alpha=config.alpha)
     initial = initial_probabilities(scores, epsilon=config.epsilon)
@@ -73,6 +73,8 @@ def search_subspaces(X_fit, y_fit, X_search, y_search, *, config: AdaptiveConfig
                         "selected_index": group.selected_index, "ties": group.tied_best_indices,
                         "selected_fit_columns": group.selected_subspace.tolist()} for group in groups],
         })
+        if retain_draws:
+            history[-1]["draws"] = [[c.feature_indices.tolist() for c in g.candidates] for g in groups]
         weights = updated
         if consecutive >= config.rq:
             break

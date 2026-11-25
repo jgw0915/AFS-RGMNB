@@ -8,7 +8,7 @@ than an additional equation claimed to appear in the active chapter.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -78,6 +78,13 @@ class PSOIteration:
     positions_identical: bool
 
 
+@dataclass
+class SwarmDiagnostics:
+    """Optional observations; neither selection nor random draws depend on these."""
+    initial_positions: np.ndarray
+    steps: list[dict] = field(default_factory=list)
+
+
 @dataclass(frozen=True)
 class PSOResult:
     model: SubspaceMNB
@@ -94,6 +101,7 @@ class PSOResult:
     particle_reset_count: int
     seeds: dict[str, int]
     config: PSOConfig
+    diagnostics: SwarmDiagnostics | None = None
 
     @property
     def iterations(self) -> int:
@@ -122,7 +130,7 @@ def _velocity_candidate(positions, velocities, personal_best, global_best, *,
 
 
 def _move_swarm(positions, velocities, personal_best, global_best, *, classes,
-                feature_indices, n_features_in, config, rng):
+                feature_indices, n_features_in, config, rng, trace=None):
     """Move the complete population using the same old historical bests.
 
     Speed repair redraws only out-of-range coordinates. Position repair
@@ -135,11 +143,14 @@ def _move_swarm(positions, velocities, personal_best, global_best, *, classes,
         c1=config.c1, c2=config.c2, rhos=rhos)
     next_positions = np.empty_like(positions)
     velocity_redraw_count = particle_reset_count = 0
+    repaired_particles = 0
+    accepted_movement = 0.0
     for particle in range(config.n_particles):
         velocity = next_velocities[particle]
         invalid_speed = ~np.isfinite(velocity) | (np.abs(velocity) > config.vmax)
         n_invalid = int(np.count_nonzero(invalid_speed))
         if n_invalid:
+            repaired_particles += 1
             velocity[invalid_speed] = rng.uniform(-config.vmax, config.vmax, size=n_invalid)
             velocity_redraw_count += n_invalid
         with np.errstate(over="ignore", invalid="ignore"):
@@ -150,6 +161,12 @@ def _move_swarm(positions, velocities, personal_best, global_best, *, classes,
             particle_reset_count += 1
         else:
             next_positions[particle] = normalize_position(trial, len(classes), len(feature_indices))
+            if trace is not None:
+                accepted_movement += float(np.abs(next_positions[particle] - positions[particle]).sum())
+    if trace is not None:
+        trace.steps.append({"repaired_velocities": repaired_particles,
+                            "absolute_movement": float(np.abs(next_positions - positions).sum()),
+                            "accepted_absolute_movement": accepted_movement})
     return next_positions, next_velocities, velocity_redraw_count, particle_reset_count
 
 
@@ -170,7 +187,7 @@ def _positions_identical(positions) -> bool:
 
 
 def optimize_mnb(X_search, y_search, *, classes, feature_indices, n_features_in,
-                 config: PSOConfig, seed: int) -> PSOResult:
+                 config: PSOConfig, seed: int, diagnostics: bool = False) -> PSOResult:
     """Search one selected subspace and return its historical-best MNB model.
 
     All classes must be represented in search data. No Dfit or Dtest argument
@@ -212,6 +229,7 @@ def optimize_mnb(X_search, y_search, *, classes, feature_indices, n_features_in,
         _search_fitness(position, X_selected, truth, classes=classes)
         for position in positions])
     personal_best = positions.copy()
+    trace = SwarmDiagnostics(positions.copy()) if diagnostics else None
     personal_best_scores = fitness.copy()
     evaluations = config.n_particles
     total_velocity_redraws = total_particle_resets = 0
@@ -236,7 +254,8 @@ def optimize_mnb(X_search, y_search, *, classes, feature_indices, n_features_in,
         global_best = personal_best[entry.best_particle_index].copy()
         positions, velocities, redraws, resets = _move_swarm(
             positions, velocities, personal_best, global_best, classes=classes,
-            feature_indices=indices, n_features_in=int(n_features_in), config=config, rng=rng)
+            feature_indices=indices, n_features_in=int(n_features_in), config=config, rng=rng,
+            **({"trace": trace} if diagnostics else {}))
         fitness = np.asarray([
             _search_fitness(position, X_selected, truth, classes=classes)
             for position in positions])
@@ -255,4 +274,4 @@ def optimize_mnb(X_search, y_search, *, classes, feature_indices, n_features_in,
         positions, velocities, personal_best, personal_best_scores, fitness,
         "positions_identical" if entry.positions_identical else "max_iterations",
         evaluations, total_velocity_redraws, total_particle_resets,
-        {"pso": int(seed)}, config)
+        {"pso": int(seed)}, config, trace)

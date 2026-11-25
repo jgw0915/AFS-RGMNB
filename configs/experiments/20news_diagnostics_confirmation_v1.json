@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "base": "20news_revised_dev.json",
+  "budget_seconds": 240,
+  "indices": {
+    "fit": "d8916d33a3bb821273f73d06d233744a2256bf135a6a6ec3f5faeab7ff78de57",
+    "search": "8928f23a70f2016106fb6275adc5c46e730e7604cd8022f727ab47a97d1e4e5a",
+    "test": "039ae4296e62c2dc0be3354ed0082e35eac34bc2126867f19ee3fb49ca02a218"
+  },
+  "trials": [
+    {
+      "name": "tiny",
+      "pso": {
+        "vmax": 0.000001
+      },
+      "feature_seed": 42,
+      "seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "name": "N50confirm",
+      "pso": {
+        "n_particles": 50
+      },
+      "feature_seed": 42,
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "random_control": true
+    },
+    {
+      "name": "G10matched",
+      "adaptive": {
+        "n_groups": 10
+      },
+      "pso": {
+        "n_particles": 20,
+        "max_iterations": 20
+      },
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "random_control": true,
+      "prefix_sizes": [
+        1,
+        3,
+        5,
+        10
+      ]
+    }
+  ]
+}

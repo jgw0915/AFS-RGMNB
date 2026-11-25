@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "base": "20news_revised_dev.json",
+  "budget_seconds": 900,
+  "indices": {
+    "fit": "d8916d33a3bb821273f73d06d233744a2256bf135a6a6ec3f5faeab7ff78de57",
+    "search": "8928f23a70f2016106fb6275adc5c46e730e7604cd8022f727ab47a97d1e4e5a",
+    "test": "039ae4296e62c2dc0be3354ed0082e35eac34bc2126867f19ee3fb49ca02a218"
+  },
+  "trials": [
+    {
+      "name": "reference",
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "feature_seed": 42
+    },
+    {
+      "name": "v0.0001",
+      "pso": {
+        "vmax": 0.0001
+      },
+      "feature_seed": 42,
+      "seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "name": "v0.001",
+      "pso": {
+        "vmax": 0.001
+      },
+      "feature_seed": 42,
+      "seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "name": "v0.01",
+      "pso": {
+        "vmax": 0.01
+      },
+      "feature_seed": 42,
+      "seeds": [
+        42,
+        43,
+        44
+      ]
+    },
+    {
+      "name": "N20",
+      "pso": {
+        "n_particles": 20
+      },
+      "feature_seed": 42
+    },
+    {
+      "name": "N50",
+      "pso": {
+        "n_particles": 50
+      },
+      "feature_seed": 42
+    },
+    {
+      "name": "I50",
+      "pso": {
+        "max_iterations": 50
+      },
+      "feature_seed": 42
+    },
+    {
+      "name": "I100",
+      "pso": {
+        "max_iterations": 100
+      },
+      "feature_seed": 42
+    },
+    {
+      "name": "L20",
+      "adaptive": {
+        "candidates_per_group": 20
+      }
+    },
+    {
+      "name": "L50",
+      "adaptive": {
+        "candidates_per_group": 50
+      }
+    },
+    {
+      "name": "m256",
+      "adaptive": {
+        "subspace_size": 256
+      }
+    },
+    {
+      "name": "m512",
+      "adaptive": {
+        "subspace_size": 512
+      }
+    },
+    {
+      "name": "m1024",
+      "adaptive": {
+        "subspace_size": 1024
+      }
+    },
+    {
+      "name": "T10",
+      "adaptive": {
+        "tmax": 10
+      }
+    },
+    {
+      "name": "T20",
+      "adaptive": {
+        "tmax": 20
+      }
+    },
+    {
+      "name": "G10",
+      "adaptive": {
+        "n_groups": 10
+      }
+    },
+    {
+      "name": "G20",
+      "adaptive": {
+        "n_groups": 20
+      }
+    }
+  ]
+}
