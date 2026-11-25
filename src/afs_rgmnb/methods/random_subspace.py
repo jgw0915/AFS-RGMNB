@@ -73,18 +73,42 @@ def select_subspaces(X_fit, y_fit, X_search, y_search, *, n_groups: int,
     No test-data argument is accepted. These are fitted candidates, not random
     MNB parameter generation or a completed AFS-RGMNB classifier.
     """
-    from scipy import sparse
     from .feature_scoring import jmh_scores
     from .adaptive_sampling import initial_probabilities
-    from .mnb import class_statistics, SubspaceMNB, _class_labels
+    from .mnb import class_statistics
 
-    for name, value in (("n_groups", n_groups), ("candidates_per_group", candidates_per_group)):
-        if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
-            raise ValueError(f"{name} must be a positive integer")
     if isinstance(seed, bool) or not isinstance(seed, (int, np.integer)) or seed < 0:
         raise ValueError("seed must be a nonnegative integer")
     start = time.perf_counter()
     stats = class_statistics(X_fit, y_fit, class_order=class_order)
+    statistics_seconds = time.perf_counter() - start
+    score_start = time.perf_counter()
+    scores = jmh_scores(X_fit, y_fit, alpha=alpha)
+    weights = initial_probabilities(scores, epsilon=epsilon)
+    scoring_seconds = time.perf_counter() - score_start
+    selection_start = time.perf_counter()
+    groups = select_round(stats, X_search, y_search, weights=weights,
+                          rng=np.random.default_rng(seed), n_groups=n_groups,
+                          candidates_per_group=candidates_per_group,
+                          subspace_size=subspace_size, alpha=alpha)
+    return CandidateSelection(tuple(groups), stats.classes.copy(), scores, weights,
+                              int(seed), {"fit_statistics_seconds": statistics_seconds,
+                              "jmh_initial_weights_seconds": scoring_seconds,
+                              "sampling_fit_search_selection_seconds": time.perf_counter() - selection_start})
+
+
+def select_round(stats, X_search, y_search, *, weights, rng, n_groups: int,
+                 candidates_per_group: int, subspace_size: int, alpha: float):
+    """Equations (3.6)–(3.9). Draw and score one round using the supplied q and RNG."""
+    from scipy import sparse
+    from .mnb import SubspaceMNB, _class_labels
+
+    weights = validate_probabilities(weights)
+    if len(weights) != stats.n_features:
+        raise ValueError("Weights must align with fit columns")
+    for name, value in (("n_groups", n_groups), ("candidates_per_group", candidates_per_group)):
+        if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or value < 1:
+            raise ValueError(f"{name} must be a positive integer")
     if (isinstance(subspace_size, bool) or not isinstance(subspace_size, (int, np.integer))
             or not 2 <= subspace_size <= stats.n_features):
         raise ValueError("subspace_size must be a fixed integer in [2,d]")
@@ -99,13 +123,6 @@ def select_subspaces(X_fit, y_fit, X_search, y_search, *, n_groups: int,
             raise ValueError("Search data must represent exactly the fit classes")
     except TypeError as exc:
         raise ValueError("Invalid search class labels") from exc
-    statistics_seconds = time.perf_counter() - start
-    score_start = time.perf_counter()
-    scores = jmh_scores(X_fit, y_fit, alpha=alpha)
-    weights = initial_probabilities(scores, epsilon=epsilon)
-    scoring_seconds = time.perf_counter() - score_start
-    rng = np.random.default_rng(seed)
-    selection_start = time.perf_counter()
     groups = []
     for _ in range(n_groups):
         candidates = []
@@ -120,7 +137,4 @@ def select_subspaces(X_fit, y_fit, X_search, y_search, *, n_groups: int,
         ties = tuple(i for i, candidate in enumerate(candidates)
                      if candidate.correct_predictions == best_correct)
         groups.append(SelectedGroup(tuple(candidates), best_index, ties, best_model))
-    return CandidateSelection(tuple(groups), stats.classes.copy(), scores, weights,
-                              int(seed), {"fit_statistics_seconds": statistics_seconds,
-                              "jmh_initial_weights_seconds": scoring_seconds,
-                              "sampling_fit_search_selection_seconds": time.perf_counter() - selection_start})
+    return tuple(groups)

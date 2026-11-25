@@ -1,4 +1,4 @@
-"""Chapter 3 (3.10)-(3.15) PSO on a fixed MNB feature subspace.
+"""Chapter 3 (3.14)-(3.19) PSO on a fixed MNB feature subspace.
 
 Fitness uses Dsearch accuracy only. Positions store all class priors first,
 then row-major class-conditional probabilities. The position map is addition
@@ -114,7 +114,7 @@ def _initialize_particle(classes, feature_indices, n_features_in, *, config, rng
 
 def _velocity_candidate(positions, velocities, personal_best, global_best, *,
                         c1: float, c2: float, rhos: np.ndarray) -> np.ndarray:
-    """Equation (3.15): two scalars per particle, each shared by its coordinates."""
+    """Equation (3.19): two scalars per particle, each shared by its coordinates."""
     with np.errstate(over="ignore", invalid="ignore"):
         return (INERTIA_WEIGHT * velocities
                 + c1 * rhos[:, 0, None] * (personal_best - positions)

@@ -35,7 +35,7 @@ def initial_probabilities(scores, *, epsilon: float) -> np.ndarray:
 
 
 def inclusion_proportions(selected_subspaces, *, n_features: int) -> np.ndarray:
-    """Equation (3.17), with fixed m and one selected subspace per group."""
+    """Equation (3.10), with fixed m and one selected subspace per group."""
     if isinstance(n_features, bool) or not isinstance(n_features, (int, np.integer)) or n_features < 2:
         raise ValueError("n_features must be an integer at least two")
     selected_subspaces = list(selected_subspaces)
@@ -57,7 +57,7 @@ def inclusion_proportions(selected_subspaces, *, n_features: int) -> np.ndarray:
 
 
 def update_probabilities(selected_subspaces, *, n_features: int, c0: float) -> np.ndarray:
-    """Equations (3.17)-(3.19); threshold uses strict > C0/log(d)."""
+    """Equations (3.10)-(3.12); threshold uses strict > C0/log(d)."""
     if not np.isfinite(c0) or c0 <= 0:
         raise ValueError("c0 must be finite and positive")
     proportions = inclusion_proportions(selected_subspaces, n_features=n_features)
@@ -69,7 +69,7 @@ def update_probabilities(selected_subspaces, *, n_features: int, c0: float) -> n
 
 
 def weight_change(current, next_weights) -> float:
-    """Equation (3.20); no stopping-policy tolerance is invented here."""
+    """Equation (3.13); no stopping-policy tolerance is invented here."""
     current = validate_probabilities(current)
     next_weights = validate_probabilities(next_weights)
     if current.shape != next_weights.shape:

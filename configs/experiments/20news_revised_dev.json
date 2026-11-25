@@ -1,0 +1,14 @@
+{
+  "dataset": "tsai2019_20news_preserved_multiclass_counts",
+  "source_fingerprint_sha256": "2f18b7b11c294dda1d716988f38a4c1184c0344c1eec73ad0f510d0a887b1528",
+  "declared_features": 83635,
+  "adaptive": {
+    "n_groups": 3, "candidates_per_group": 4, "subspace_size": 128,
+    "alpha": 1.0, "epsilon": 0.05, "c0": 1.0,
+    "delta_q": 0.01, "rq": 2, "tmax": 4
+  },
+  "pso": {
+    "n_particles": 5, "max_iterations": 5, "c1": 1.4, "c2": 1.4, "vmax": 0.00001
+  },
+  "cv": {"n_splits": 5, "search_fraction": 0.2, "seed": 42, "folds": [0]}
+}

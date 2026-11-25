@@ -54,7 +54,7 @@ def run_pso_pipeline(X, y, *, pre_config: PrePSOConfig, pso_config, pso_seed: in
     """Reuse the verified pre-PSO stages, then optimize each retained subspace.
 
     Only y_search and X_search enter the optimizer. Dtest remains unscored.
-    This completes model search for one outer-weight iteration, not AFS-RGMNB.
+    Historical one-round diagnostic. Use the revised runner for adaptive search and voting.
     """
     start = time.perf_counter()
     pre_result = run_pre_pso(X, y, config=pre_config, sample_ids=sample_ids,

@@ -1,4 +1,4 @@
-"""Numerical checks of Chapter 3 (3.10)-(3.11) and particle serialization."""
+"""Numerical checks of Chapter 3 (3.14)-(3.15) and particle serialization."""
 import unittest
 
 import numpy as np
@@ -36,7 +36,7 @@ class RandomGenerationTests(unittest.TestCase):
             np.array([[.25, .75], [.6, .4], [.1, .9]]), 5)
 
     def test_hand_draws_use_independent_priors_and_per_class_blocks(self):
-        # Equation (3.11): each denominator includes only its own block.
+        # Equation (3.15): each denominator includes only its own block.
         rng = ScriptedGenerator([[.2, .3, .5], [[.1, .3], [.8, .2], [.3, .6]]])
         parameters = generate_parameters(self.classes, self.indices, 5, rng=rng)
         self.assertEqual(rng.calls, [3, (3, 2)])

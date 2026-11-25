@@ -1,4 +1,4 @@
-"""Independent-uniform MNB initialization, Chapter 3 equations (3.10)-(3.11).
+"""Independent-uniform MNB initialization, Chapter 3 equations (3.14)-(3.15).
 
 The fixed particle layout is all M priors followed by the M-by-m conditional
 probabilities in row-major order. Feature and class order are preserved, so a
@@ -74,7 +74,7 @@ def _open_uniform(rng: np.random.Generator, size) -> np.ndarray:
 
 def generate_parameters(classes, feature_indices, n_features_in, *,
                         rng: np.random.Generator) -> MNBParameters:
-    """Draw independent U_y and V_yj and normalize exactly as equation (3.11).
+    """Draw independent U_y and V_yj and normalize exactly as equation (3.15).
 
     No class counts or estimated parameters enter this initialization. The
     caller owns and seeds the Generator; independent calls consume new draws.
