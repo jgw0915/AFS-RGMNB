@@ -97,6 +97,7 @@ class RevisedWorkflowTests(unittest.TestCase):
     def test_fixed_partition_test_values_and_labels_isolated_and_serializable(self):
         modified = self.X.tolil()
         modified[48:, 7000] = 99
+        modified[48:, :6] = 7
         labels = self.labels.copy()
         labels[48:] = np.roll(labels[48:], 1)
         with tempfile.TemporaryDirectory() as temp:
@@ -106,15 +107,43 @@ class RevisedWorkflowTests(unittest.TestCase):
             self.assertEqual(first["weight_history"], second["weight_history"])
             self.assertEqual(first["final_source_feature_ids"], second["final_source_feature_ids"])
             self.assertEqual([r["history"] for r in first["pso"]], [r["history"] for r in second["pso"]])
-            for filename in ("ensemble.npz", "fold.npz"):
-                with np.load(a / filename) as original, np.load(b / filename) as repeat:
-                    for k in original.files:
-                        np.testing.assert_array_equal(original[k], repeat[k])
+            with np.load(a / "ensemble.npz") as original, np.load(b / "ensemble.npz") as repeat:
+                for k in original.files:
+                    np.testing.assert_array_equal(original[k], repeat[k])
+            with np.load(a / "fold.npz") as original, np.load(b / "fold.npz") as repeat:
+                for k in ("fit_columns", "source_feature_ids", "initial_weights", "next_weights"):
+                    np.testing.assert_array_equal(original[k], repeat[k])
             model = VotingEnsemble.load(a / "ensemble.npz")
             with np.load(a / "fold.npz") as saved:
                 prediction = model.predict(self.X[saved["test"]][:, saved["fit_columns"]])
                 np.testing.assert_array_equal(prediction, saved["predictions"])
                 np.testing.assert_array_equal(saved["source_feature_ids"], np.arange(101, 107))
+
+    def test_each_swarm_generates_fresh_parameters_after_search(self):
+        # A one-particle swarm stops at initialization, exposing exactly the
+        # randomly generated parameters supplied to each retained model.
+        cfg = replace(self.config, rq=1, tmax=1, subspace_size=6)
+        small = self.X[:, :6]
+        draws = []
+        original = pso.generate_parameters
+
+        def generate(*args, **kwargs):
+            self.assertEqual(rounds.call_count, 1)
+            result = original(*args, **kwargs)
+            draws.append(result)
+            return result
+
+        with patch.object(search, "select_round", wraps=search.select_round) as rounds, \
+             patch.object(pso, "generate_parameters", side_effect=generate):
+            ensemble, _, _, _ = runner.fit_ensemble(
+                small[:36], self.labels[:36], small[36:48], self.labels[36:48],
+                adaptive=cfg, pso=replace(self.pso, n_particles=1), search_seed=3, pso_seed=4)
+        self.assertEqual(len(draws), cfg.n_groups)
+        for draw, member in zip(draws, ensemble.members):
+            np.testing.assert_array_equal(draw.class_prior, member.class_prior_)
+            np.testing.assert_array_equal(draw.feature_prob, member.feature_prob_)
+            self.assertFalse(np.array_equal(draw.class_prior, np.full(3, 1/3)))
+        self.assertEqual(len({d.class_prior.tobytes() for d in draws}), cfg.n_groups)
 
     def test_equal_votes_member_columns_and_fixed_class_order(self):
         # Three different magnitudes. Two weak votes for class 9 defeat one strong vote for 2.
