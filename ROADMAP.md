@@ -80,6 +80,20 @@
 - [ ] Agree on tuning, repeat seeds and rare-class eligibility before formal
   cross-dataset accuracy/runtime comparisons and Chapter 4 tables.
 
+## November 26 performance diagnostics
+
+- [x] Replay the verified fold and compare Dsearch predictions of full-feature,
+  fitted-subspace, initial-particle and PSO models under the same mapping.
+- [x] Complete 49 controlled executions and record all configurations, swarm
+  behavior and timings. Reproduce the first phase with
+  `python scripts/run_search_diagnostics.py --archive './reference/107-林幸辰' --output outputs/diagnosis/ofat`.
+  The [run guide](README.md#diagnose-20news-search-accuracy) includes follow-up and reporting commands.
+- [x] Prepare sparse class/term document frequencies, reproducible bootstrap
+  indices and the [Q08 proposal](reports/2026-11-26/baseline_protocol_proposal.md).
+- [ ] Agree on the independent validation design and comparator policies before
+  using further outer folds. Compare the two [provisional candidates](reports/2026-11-26/hyperparameter_sensitivity.md)
+  against fitted and equal-budget independent-random controls.
+
 ## Reference and data-storage inspection (November 17)
 
 - [x] Protect the moved `reference/` tree and inspect both added senior folders

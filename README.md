@@ -22,6 +22,33 @@ The primary Chi-square + Bagging-MNB comparison and formal Chapter 4 runs remain
 See the [configuration and output guide](docs/experiments/revised_workflow.md) and
 [validation report](reports/2026-11-25/revised_method_validation.md).
 
+## Diagnose 20News search accuracy
+
+The November 26 investigation reuses the archived fold-0 partition and scores
+Dsearch. The fitted-subspace control reached 46.85% and the reference PSO vote
+reached 8.18% on the same 3,020 documents. See the [diagnosis](reports/2026-11-26/performance_diagnosis.md)
+and [accuracy–cost study](reports/2026-11-26/hyperparameter_sensitivity.md).
+
+Use the pinned experiment environment and a fresh output directory for each
+command. The default reference is `outputs/2026-11-25/run-a`; use
+`--reference PATH` for an equivalent archived run containing `run.json`,
+`fold_00/fold.npz` and `fold_00/ensemble.npz`. The driver verifies the source,
+partition indices and fit-column mapping.
+
+```powershell
+$env:OPENBLAS_NUM_THREADS = '1'
+python scripts/run_search_diagnostics.py --archive './reference/107-林幸辰' --config configs/experiments/20news_diagnostics_v1.json --output outputs/diagnosis/ofat
+python scripts/run_search_diagnostics.py --archive './reference/107-林幸辰' --config configs/experiments/20news_diagnostics_followup_v1.json --output outputs/diagnosis/followup
+python scripts/run_search_diagnostics.py --archive './reference/107-林幸辰' --config configs/experiments/20news_diagnostics_confirmation_v1.json --output outputs/diagnosis/confirmation
+```
+
+To regenerate the aggregate Markdown and figures, run the following with NumPy
+and Matplotlib installed. The measured report used Matplotlib 3.10.8.
+
+```powershell
+python scripts/summarize_search_diagnostics.py --ofat outputs/diagnosis/ofat --followup outputs/diagnosis/followup --confirmation outputs/diagnosis/confirmation --output outputs/diagnosis/report
+```
+
 ## November 16 progress report
 
 Start with [the Chinese professor summary](reports/2026-11-16/professor_summary_zh-TW.md),
